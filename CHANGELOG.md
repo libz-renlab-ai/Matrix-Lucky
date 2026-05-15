@@ -89,26 +89,26 @@ artifacts the user sees) do NOT need an entry.
   reverse-dictate the product design of #308 / #371 / #372. `README.md` gains a short
   `## 三大业务特性 / Three business features` section pointing at both probes.
 
-- **Digital-twin sidecar + `/api/cc-status` collector** (issue #350, PR #374, #381).
-  Every Stop hook now taps a structured session snapshot — session id,
-  cwd, latest user prompt, tool-call counters, elapsed turns — and a
-  user-level `bin-digital-twin-tap.cjs` Stop hook hands it off to a long-running
-  uploader daemon. The uploader pushes hourly delta logs to a local collector
-  server (default `http://127.0.0.1:8080`) which exposes
-  `GET /api/cc-status` returning the latest snapshot per session. Privacy:
-  per-user data dir (`~/.teamagent/digital-twin/<hostname>/`), TLS-friendly
-  paths, redactor reused from the team-share gate. Disabled by setting
-  `TEAMAGENT_DISABLED=1` or by leaving the collector server unreachable
-  (uploader degrades silently after one warn line). Issue #368 hooks the
-  same payload up so out-of-the-box installs upload to the LAN collector
-  on port 8080 without manual config.
-
 - **`teamagent statusline` exposes CC runtime state** (issue #331, PR #337,
-  follow-ups #124, #317). The Claude Code status bar now reads from
-  `~/.teamagent/cc-status.json` (written by the digital-twin tap) and
-  surfaces `TeamAgent | 规则:N | 帮过 …` with live rule-fire count,
-  recent intercepts, and propagation status. Resolves to the project DB
-  even when called from a git worktree (PR #317 walk-up fix).
+  follow-ups #124, #317). The Claude Code status bar surfaces
+  `TeamAgent | 规则:N | 帮过 …` with live rule-fire count, recent
+  intercepts, and propagation status. Resolves to the project DB even
+  when called from a git worktree (PR #317 walk-up fix).
+
+### Removed
+
+- **Digital-twin sidecar + `/api/cc-status` upload pipeline removed**
+  (2026-05-15). The session-log + recording + Max-quota uploader chain
+  introduced in issues #146 / #283 / #299 / #308 / #350 / #368 / #371 /
+  #381 (and the BPP team-share collector server) has been deleted in
+  full. The `teamagent digital-twin`, `teamagent record`, `teamagent video`,
+  `teamagent presence`, `teamagent bpp`, and `teamagent team` CLI subcommands
+  no longer exist; the `bin-digital-twin-tap.cjs` Stop tap, the
+  `bin-uploader.cjs` daemon, the user-level CC-status push from the
+  statusline + SessionStart/SessionEnd/UserPromptSubmit/Stop hooks, and the
+  `~/.teamagent/digital-twin/` data directory are all gone. No replacement.
+  Local statusline rendering (`TeamAgent | 规则 | 帮过 | 拦过 | 项目`) is
+  preserved.
 
 - **Post-merge auto-update banner for PR creators** (PR #358, m6).
   When a contributor merges a PR, the next SessionStart surfaces a 🎯
@@ -345,34 +345,18 @@ artifacts the user sees) do NOT need an entry.
   `friendlyError` now also passes the full detail through (was truncated at 120 chars
   before, losing the path the user needs to act on).
 
-- **`dist/bin-digital-twin-tap.cjs` is now actually built and shipped** (issue #299).
-  0.11.0's install table and CHANGELOG referenced this bundle as a user-level
-  Stop hook, but `packages/teamagent/tsup.config.ts` `ENTRIES` dict (and the cjs
-  block's `entry` list) never declared it, so the file was never emitted to
-  `dist/`. `applyChannelOps` then silently `continue`d past the missing bundle
-  and the user-level digital-twin Stop tap was dropped from
-  `~/.claude/settings.json` without trace. The 0.11.0 CHANGELOG claim
-  "v0.11.0 drops the `.sh` wrapper and collapses to the `.cjs` user-level path
-  alone — net 1 spawn per Stop in TeamBrain" was therefore a no-op for
-  downstream users until this fix (the .sh wrapper inside the TeamBrain repo
-  kept the tap alive in dogfood mode, masking the regression).
+- **`teamagent doctor` walks every install-table-referenced bundle.**
+  The new check (`install-table-bundles`) iterates `install-hook.ts`'s
+  `ALL_CHANNELS`, resolves each `bundleFilename` to its expected dist path
+  via `enumerateInstallTableBundlePaths()`, and `fs.existsSync` each. Any
+  missing file → `status: "fail"` listing every absent filename → doctor
+  exits non-zero.
 
-  Defense-in-depth added alongside the build entry fix:
-
-  - **`teamagent doctor` now walks every install-table-referenced bundle.**
-    The new check (`install-table-bundles`) iterates `install-hook.ts`'s
-    `ALL_CHANNELS`, resolves each `bundleFilename` to its expected dist path
-    via `enumerateInstallTableBundlePaths()`, and `fs.existsSync` each. Any
-    missing file → `status: "fail"` listing every absent filename → doctor
-    exits non-zero. Catches future build-config regressions of the same
-    shape before release.
-
-  - **`applyChannelOps` no longer silently skips missing bundles.**
-    Replaced the silent `continue` with a single stderr line
-    `teamagent: skipping channel <channel> — bundle <bundle-filename> not found`,
-    then continues. Install still proceeds with whatever bundles exist
-    (partial install > hard failure for genuine cross-version-compat cases).
-    Warn is NOT silenced under CI.
+- **`applyChannelOps` no longer silently skips missing bundles.**
+  Replaced the silent `continue` with a single stderr line
+  `teamagent: skipping channel <channel> — bundle <bundle-filename> not found`,
+  then continues. Install still proceeds with whatever bundles exist.
+  Warn is NOT silenced under CI.
 
 ## 0.11.0 — 2026-05-09
 
@@ -392,15 +376,12 @@ Closes the three follow-ups captured in PR #232 § 8 ("Follow-up captured for ne
 
 ### Fixed
 
-- **In-TeamBrain double-tap on Stop hook eliminated**. Pre-v0.11 the
-  TeamBrain repo's committed `.claude/settings.json` registered both a
-  `digital-twin-tap.sh` bash wrapper AND `bin-digital-twin-tap.cjs`
-  (user-level via `teamagent init`), so every Stop event spawned the
-  digital-twin tap twice. `tapSession()`'s `(cwd, session_id)` idempotency
-  dedup'd the database write, but the wasted process spawns and file
-  reads (~50ms per Stop) added up. v0.11.0 drops the `.sh` wrapper and
-  collapses to the `.cjs` user-level path alone — net 1 spawn per Stop
-  in TeamBrain (previously 2) and unchanged in other projects (still 1).
+- **Stop-hook double-tap eliminated**. Pre-v0.11 the TeamBrain repo's
+  committed `.claude/settings.json` registered both a `.sh` bash wrapper
+  AND a `.cjs` Stop hook entry, so every Stop event spawned twice. v0.11.0
+  drops the `.sh` wrapper and collapses to the `.cjs` user-level path
+  alone — net 1 spawn per Stop in TeamBrain (previously 2) and unchanged
+  in other projects (still 1).
 
 ## [0.10.5] — 2026-05-09
 

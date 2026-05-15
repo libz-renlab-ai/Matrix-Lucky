@@ -1,3 +1,6 @@
+> **SUPERSEDED 2026-05-15**: Digital-Twin / cc-status / BPP upload pipeline removed in full. This plan/research/report is kept for historical audit only.
+
+
 # Plan: issue-297 — `teamagent record start` audio device defaults + escape hatch
 
 ## task description

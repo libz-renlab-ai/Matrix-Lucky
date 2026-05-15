@@ -1,3 +1,6 @@
+> **SUPERSEDED 2026-05-15**: Digital-Twin / cc-status / BPP upload pipeline removed in full. This plan/research/report is kept for historical audit only.
+
+
 ```
    _____
   ( o>    issue-146 F2 + F3 + F9 — fused PR #263 squash-merged

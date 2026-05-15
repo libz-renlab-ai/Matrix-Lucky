@@ -1,3 +1,8 @@
+> **2026-05-15 update**: Digital-Twin / cc-status / BPP upload chain has been
+> deleted. Any reference below to `bin-digital-twin-tap.cjs`, `bin-uploader.cjs`,
+> `digital-twin-tap.sh`, or the `.teamagent/digital-twin/` data dir is historical;
+> the only Stop-hook entry today is `bin-stop.cjs` (learning pipeline).
+
 ```
         __                                               
       <(o )___       Project-level Hook Status (canonical)

@@ -46,6 +46,7 @@ import type { LLMClient } from "@teamagent/ports";
 import type { KnowledgeEntry } from "@teamagent/types";
 import { computeEnforcement } from "@teamagent/types";
 import { auditOrphanShellHooks, installHook } from "./install-hook.js";
+import { runM5Infect } from "./m5-infect.js";
 import {
   CHECK_TEAMAGENT_SH_CONTENT,
   REQUIRED_JSON_CONTENT,
@@ -99,6 +100,21 @@ export interface InitOptions {
   skipSeed?: boolean;
   /** 跳过向量模型预热（测试 / 离线环境；正常安装应保持 false）。 */
   skipWarmup?: boolean;
+  /**
+   * Phase 11 全自动 bootstrap：只做让队友机器具备 m5-sync 能力的最小子集 ——
+   * 写 manifest（runM5Infect）+ git config core.hooksPath .githooks +
+   * 注册 Claude PreToolUse / SessionStart hook（如 bundle 在）。
+   * 跳过 seed / preset / LLM import / plugin / skill compile / warmup / doctor。
+   * 设计目标 <1s，配合 package.json 的 `prepare` script 让 `npm install` /
+   * `pnpm install` 一跑完，团队规则同步链路就 ready，无需队友任何手动操作。
+   */
+  bootstrapOnly?: boolean;
+  /**
+   * Phase 11 全自动门禁：silent 模式下 init 自身不向 stdout 写 banner / 进度 ——
+   * 仅在失败时由 bin.ts 调用方打 stderr。配 `prepare` script 用，避免每次
+   * `pnpm install` 在终端刷一大段 init 输出污染队友日常工作流。
+   */
+  silent?: boolean;
   /** 显式指定 seed 文件路径（测试用）。 */
   seedPath?: string;
   /**
@@ -239,6 +255,41 @@ export async function executeInit(opts: InitOptions = {}): Promise<InitResult> {
   const target = opts.target ?? "claude";
   const now = opts.now ?? (() => new Date());
   const steps: InitStepResult[] = [];
+
+  // Phase 11 全自动 bootstrap：team 项目里队友 `pnpm install` 触发 prepare
+  // script 时跑这条路径。最小子集：写 manifest（runM5Infect）+ git config
+  // core.hooksPath + 注册 Claude PreToolUse / SessionStart hook。跳过 seed /
+  // preset / LLM / plugin / skill compile / warmup / doctor / Codex hook。
+  // 设计目标 <1s，幂等；失败不抛（prepare 用 `|| true` 兜底）。
+  if (opts.bootstrapOnly) {
+    if (dryRun) {
+      return finalize(true, true, [
+        okStep("bootstrap-only", "(dry-run) 会跑 m5-infect + Claude hook 注册"),
+      ], emptySummary());
+    }
+    try {
+      // 1) manifest + .githooks/* + git config core.hooksPath
+      const inf = await runM5Infect({ projectRoot: paths.cwd });
+      steps.push(
+        okStep(
+          "bootstrap-infect",
+          inf.skipped
+            ? "项目已 infect，跳过"
+            : `wrote=${inf.written_files.length} hookspath=${inf.git_hookspath_set ? "set" : (inf.hookspath_blocked ? `blocked(${inf.hookspath_existing})` : "skipped")}`,
+        ),
+      );
+    } catch (err) {
+      steps.push(failStep("bootstrap-infect", String(err).slice(0, 200)));
+    }
+    if (targetIncludesClaude(target) && !opts.skipHook) {
+      // 2) Claude hook —— installHook 在 bundle 缺失时自身降级（statusLineSkipped 等）
+      steps.push(
+        doInstallHook(paths.cwd, opts.hookEntry, dryRun, opts.userLevelHook ?? true),
+      );
+    }
+    const ok = !steps.some((s) => s.status === "failed");
+    return finalize(ok, dryRun, steps, emptySummary());
+  }
 
   // Issue #161 follow-up (PR #181 /review finding #5):
   // If an ancestor directory already has a teamagent project (.teamagent/knowledge.db
@@ -1962,6 +2013,8 @@ export function parseInitArgs(argv: string[]): InitOptions {
     else if (a === "--no-user-level-hook") opts.userLevelHook = false;
     else if (a === "--force-nested-init") opts.force = true;
     else if (a === "--skip-warmup") opts.skipWarmup = true;
+    else if (a === "--bootstrap-only") opts.bootstrapOnly = true;
+    else if (a === "--silent") opts.silent = true;
     else if (a === "--install-plugins") opts.installPlugins = true;
     else if (a === "--codex") opts.target = "codex";
     else if (a === "--claude") opts.target = "claude";

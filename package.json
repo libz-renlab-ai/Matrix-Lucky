@@ -5,6 +5,7 @@
   "description": "团队AI自进化引擎",
   "type": "module",
   "scripts": {
+    "prepare": "tsx packages/cli/src/bin.ts init --bootstrap-only --silent || true",
     "build": "pnpm -r build",
     "test": "vitest run",
     "test:watch": "vitest",

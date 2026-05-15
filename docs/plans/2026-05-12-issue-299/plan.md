@@ -1,3 +1,6 @@
+> **SUPERSEDED 2026-05-15**: Digital-Twin / cc-status / BPP upload pipeline removed in full. This plan/research/report is kept for historical audit only.
+
+
 # Plan — issue #299: `bin-digital-twin-tap.cjs` missing from 0.11.0 dist
 
 ## Task description

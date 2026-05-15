@@ -1,3 +1,6 @@
+> **SUPERSEDED 2026-05-15**: Digital-Twin / cc-status / BPP upload pipeline removed in full. This plan/research/report is kept for historical audit only.
+
+
 # Plan: TeamBrain Digital Twin Sidecar (issue #146)
 
 **权威源**：[GitHub Issue #146 — Implementation Spec: TeamBrain Digital Twin Sidecar](https://github.com/libz-renlab-ai/TeamBrain/issues/146)

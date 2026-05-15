@@ -90,7 +90,7 @@
 
 - embedder daemon：**有**单例守卫（`~/.teamagent/.embedder-state.json` per-machine state + Race α/β 锁，Issue #164/#315）—— 但有个已知洞：`daemon-first-embedder.ts:111` / `:125` 的 `status === 'starting'` 检查不验 pid 存活，daemon 启动中崩溃会永久卡死（见 live issue **#450**）。
 - updater：**有**守卫（`bin-updater.ts` 的 `update.lock` re-entry gate + 时间节流）。
-- uploader daemon：**有**守卫（`packages/digital-twin/src/bin-uploader.ts:55` `acquirePidLock`）。
+- uploader daemon：已随 Digital-Twin 上传链路于 2026-05-15 整体移除。
 - **真正无守卫的只有 warmup 的 spawn 路径**：`spawnDetachedWarmup` 不查「是否已有 warmup / 模型是否已缓存」；`runWarmup` 的 pid-liveness 检查只在「依赖缺失」那个 skip 分支里，正常下载路径不礼让。
 
 初版「embedder daemon、warmup、updater 没有同等守卫」是错的 —— 只有 warmup spawn 路径弱。

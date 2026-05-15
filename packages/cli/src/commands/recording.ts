@@ -534,10 +534,8 @@ export function parseRecordingArgs(argv: string[]): RecordingCommandOptions {
   if (opts.action === "import" && !opts.filePath) {
     throw new Error("recording import requires --file <path>");
   }
-  // Issue #296: `teamagent recording` (Recording Memory, transcript JSON) is
-  // distinct from `teamagent record` (digital-twin audio recorder). When the
-  // user passes an audio file here, the bare JSON.parse error downstream is
-  // unhelpful — redirect to the right subsystem instead.
+  // `teamagent recording` is the Recording Memory subsystem (transcript-first);
+  // an audio-file argv is unhelpful here — refuse with a clear message.
   if (
     opts.action === "import" &&
     opts.filePath &&
@@ -545,9 +543,7 @@ export function parseRecordingArgs(argv: string[]): RecordingCommandOptions {
   ) {
     throw new Error(
       `recording import expects a transcript JSON file, got an audio file (${opts.filePath}). ` +
-        `Did you mean 'teamagent record import ${opts.filePath}'? ` +
-        `'teamagent recording' is the Recording Memory subsystem (transcript-first); ` +
-        `'teamagent record' is the digital-twin audio recorder. See 'teamagent record --help'.`,
+        `'teamagent recording' is the Recording Memory subsystem (transcript-first).`,
     );
   }
   if (opts.action === "search" && !opts.query) {

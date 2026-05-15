@@ -878,6 +878,20 @@ describe("parseInitArgs", () => {
       installPlugins: true,
     });
   });
+  it("Phase 11 --bootstrap-only flag", () => {
+    expect(parseInitArgs(["--bootstrap-only"])).toEqual({
+      bootstrapOnly: true,
+    });
+  });
+  it("Phase 11 --silent flag", () => {
+    expect(parseInitArgs(["--silent"])).toEqual({ silent: true });
+  });
+  it("Phase 11 --bootstrap-only + --silent combined (prepare-script shape)", () => {
+    expect(parseInitArgs(["--bootstrap-only", "--silent"])).toEqual({
+      bootstrapOnly: true,
+      silent: true,
+    });
+  });
   it("--codex and --target=both", () => {
     expect(parseInitArgs(["--codex"])).toEqual({ target: "codex" });
     expect(parseInitArgs(["--target=both"])).toEqual({ target: "both" });
@@ -952,6 +966,85 @@ describe("parseInitArgs", () => {
       expect.stringContaining("--foo"),
     );
     writeSpy.mockRestore();
+  });
+});
+
+describe("executeInit --bootstrap-only (Phase 11 prepare-script path)", () => {
+  let tmpBoot: ReturnType<typeof mkTmp>;
+  beforeEach(() => (tmpBoot = mkTmp()));
+  afterEach(() => tmpBoot.cleanup());
+
+  it("only runs bootstrap-infect step + skips seed / preset / compile-skills", async () => {
+    // Plant a fake git repo so runM5Infect's plan goes through.
+    const { execSync } = await import("node:child_process");
+    execSync("git init --quiet --initial-branch=main", { cwd: tmpBoot.cwd });
+    execSync("git config user.email t@t.com", { cwd: tmpBoot.cwd });
+    execSync("git config user.name t", { cwd: tmpBoot.cwd });
+
+    const r = await executeInit({
+      cwd: tmpBoot.cwd,
+      homeDir: tmpBoot.home,
+      bootstrapOnly: true,
+      skipHook: true, // bundle .cjs may not exist in test fixture
+    });
+
+    expect(r.ok).toBe(true);
+    // bootstrap-infect MUST be present
+    const infect = r.steps.find((s) => s.step === "bootstrap-infect");
+    expect(infect?.status).toBe("ok");
+    // The heavy steps that bootstrap-only is supposed to skip MUST NOT appear
+    for (const skipped of [
+      "load-preset",
+      "load-seed",
+      "scan-rules",
+      "compile-skills",
+      "install-plugins",
+    ]) {
+      expect(r.steps.find((s) => s.step === skipped)).toBeUndefined();
+    }
+    // Manifest landed
+    expect(
+      nodeFs.existsSync(path.join(tmpBoot.cwd, ".teamagent", "manifest.json")),
+    ).toBe(true);
+  });
+
+  it("--bootstrap-only on idempotent re-run: m5-infect reports skipped + ok=true", async () => {
+    const { execSync } = await import("node:child_process");
+    execSync("git init --quiet --initial-branch=main", { cwd: tmpBoot.cwd });
+    execSync("git config user.email t@t.com", { cwd: tmpBoot.cwd });
+    execSync("git config user.name t", { cwd: tmpBoot.cwd });
+
+    await executeInit({
+      cwd: tmpBoot.cwd,
+      homeDir: tmpBoot.home,
+      bootstrapOnly: true,
+      skipHook: true,
+    });
+    const r2 = await executeInit({
+      cwd: tmpBoot.cwd,
+      homeDir: tmpBoot.home,
+      bootstrapOnly: true,
+      skipHook: true,
+    });
+
+    expect(r2.ok).toBe(true);
+    const infect = r2.steps.find((s) => s.step === "bootstrap-infect");
+    expect(infect?.status).toBe("ok");
+    expect(infect?.detail).toMatch(/已 infect|skipped/);
+  });
+
+  it("--bootstrap-only --dry-run does not write manifest", async () => {
+    const r = await executeInit({
+      cwd: tmpBoot.cwd,
+      homeDir: tmpBoot.home,
+      bootstrapOnly: true,
+      dryRun: true,
+    });
+    expect(r.ok).toBe(true);
+    expect(r.dryRun).toBe(true);
+    expect(
+      nodeFs.existsSync(path.join(tmpBoot.cwd, ".teamagent", "manifest.json")),
+    ).toBe(false);
   });
 });
 

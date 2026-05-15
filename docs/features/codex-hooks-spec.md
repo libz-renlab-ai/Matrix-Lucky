@@ -1,3 +1,6 @@
+> **2026-05-15 update**: Digital-Twin tap (`bin-digital-twin-tap.cjs`) has been
+> deleted; references to it below are historical only.
+
 ```
        ____           __                __                __        
       / ___|___   __| | ___ __  __    / /_   ____  ____ / /_______

@@ -1,3 +1,6 @@
+> **SUPERSEDED 2026-05-15**: Digital-Twin / cc-status / BPP upload pipeline removed in full. This plan/research/report is kept for historical audit only.
+
+
 # report.md — issue #368 FIXEDFLOW execution report
 
 **Issue:** #368 — "[fixedflow] 装了 teamagent 后，CC 对话数据/状态完全没上传到局域网 8080"

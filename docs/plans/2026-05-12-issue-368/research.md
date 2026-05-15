@@ -1,3 +1,6 @@
+> **SUPERSEDED 2026-05-15**: Digital-Twin / cc-status / BPP upload pipeline removed in full. This plan/research/report is kept for historical audit only.
+
+
 # research.md — issue #368: digital-twin upload silently broken on fresh install
 
 ## Symptom (from grill)

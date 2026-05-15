@@ -1,3 +1,6 @@
+> **SUPERSEDED 2026-05-15**: Digital-Twin / cc-status / BPP upload pipeline removed in full. This plan/research/report is kept for historical audit only.
+
+
 # Report — issue #350 (digital-twin → CC runtime status upload + `/api/cc-status` query API)
 
 FIXEDFLOW driver run (`/fixed-flow-driver`), steps 3–5. Closed by PR **#374**,

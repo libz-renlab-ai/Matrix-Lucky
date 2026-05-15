@@ -240,9 +240,9 @@ pnpm teamagent init
 
 ### d) 装完没数据上来？先**完全重启 Claude Code**
 
-Stop hook（数字孪生 transcript 上传 + 学习管道）是在 Claude Code **下次启动**时才挂上的。`pnpm teamagent init` 之后必须**彻底退出并重开** Claude Code（关窗口重开，不是 `/clear`），Stop hook 才生效。
+Stop hook（学习管道）是在 Claude Code **下次启动**时才挂上的。`pnpm teamagent init` 之后必须**彻底退出并重开** Claude Code（关窗口重开，不是 `/clear`），Stop hook 才生效。
 
-> 如果重启之后 dashboard 上还是看不到本机数据，跑 `teamagent doctor` 看 `digital-twin-uploader:` 那一行；显示 `BROKEN` 会附带具体原因，`teamagent digital-twin status` 的 `uploader log:` 段会给出 daemon 最近一次崩溃的错误行。
+> 如果重启之后 dashboard 上还是看不到本机数据，跑 `teamagent doctor` 看完整诊断报告。
 
 ---
 

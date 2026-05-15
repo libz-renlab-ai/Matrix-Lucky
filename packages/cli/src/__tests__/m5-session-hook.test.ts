@@ -2,7 +2,13 @@ import { describe, it, expect } from "vitest";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-import { isInfected, runM5Session } from "../m5-session-hook.js";
+import { execSync } from "node:child_process";
+import {
+  isInfected,
+  isWorktreeCheckout,
+  runGitPullSafe,
+  runM5Session,
+} from "../m5-session-hook.js";
 
 describe("isInfected (no walk-up; pure predicate)", () => {
   it("returns true when manifest.json exists in the given directory", () => {
@@ -96,10 +102,161 @@ describe("runM5Session walk-up entry (#161)", () => {
         // the SessionStart banner can surface skip reasons. Walk-up early
         // exits return 0.
         skipped_count: 0,
+        // Phase 11 adds pulled + pull_skip_reason for the auto-pull step;
+        // walk-up early exits never even attempt the pull.
+        pulled: false,
+        pull_skip_reason: null,
       });
     } finally {
       fs.rmSync(cwd, { recursive: true, force: true });
       fs.rmSync(homeDir, { recursive: true, force: true });
+    }
+  });
+});
+
+/**
+ * Phase 11 — runGitPullSafe must silently skip 5 known "pulling would break
+ * the user's current work" scenarios + opt-out + worktree. None of these
+ * should write to stdout, throw, or take longer than ~5s. We avoid network
+ * by NEVER setting up an `origin` remote — that flips the second guard
+ * (`no-upstream`) FAST. The earlier guards (detached / mid-rebase / dirty)
+ * each fire before that one, so they're testable without a remote.
+ */
+describe("runGitPullSafe — 5 silent skip cases + opt-out + worktree", () => {
+  /** Plain git repo with no remote — for the no-upstream / detached cases. */
+  function makeRepo(): string {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "ta-pull-safe-"));
+    execSync("git init --quiet --initial-branch=main", { cwd: root });
+    execSync("git config user.email t@t.com", { cwd: root });
+    execSync("git config user.name t", { cwd: root });
+    fs.writeFileSync(path.join(root, "README.md"), "x");
+    execSync("git add . && git commit --quiet -m init", { cwd: root });
+    return root;
+  }
+  /**
+   * Repo with a real bare-repo origin and `@{u}` set — needed for the
+   * mid-merge / mid-rebase / dirty cases, since otherwise the upstream gate
+   * short-circuits earlier with reason="no-upstream". Returns BOTH paths so
+   * the caller cleans up the bare repo too.
+   */
+  function makeRepoWithOrigin(): { work: string; bare: string } {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ta-pull-up-"));
+    const bare = path.join(dir, "origin.git");
+    const work = path.join(dir, "work");
+    fs.mkdirSync(bare, { recursive: true });
+    fs.mkdirSync(work, { recursive: true });
+    execSync(`git init --bare --quiet`, { cwd: bare });
+    execSync("git init --quiet --initial-branch=main", { cwd: work });
+    execSync("git config user.email t@t.com", { cwd: work });
+    execSync("git config user.name t", { cwd: work });
+    fs.writeFileSync(path.join(work, "README.md"), "x");
+    execSync("git add . && git commit --quiet -m init", { cwd: work });
+    execSync(`git remote add origin "${bare}"`, { cwd: work });
+    execSync("git push --quiet -u origin main", { cwd: work });
+    return { work, bare: dir };
+  }
+
+  it("opt-out via TEAMAGENT_AUTO_PULL=0 short-circuits before any git call", () => {
+    const root = makeRepo();
+    try {
+      const r = runGitPullSafe(root, { TEAMAGENT_AUTO_PULL: "0" });
+      expect(r).toEqual({ pulled: false, reason: "opt-out" });
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("non-git project returns reason=null (not an error, just nothing to do)", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "ta-pull-safe-nogit-"));
+    try {
+      const r = runGitPullSafe(root, {});
+      expect(r).toEqual({ pulled: false, reason: null });
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("worktree path under .codex/worktrees/ is refused", () => {
+    // We don't need a real git worktree — the path-segment check fires first.
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "ta-pull-wt-"));
+    try {
+      const wt = path.join(root, ".codex", "worktrees", "issue-1");
+      fs.mkdirSync(wt, { recursive: true });
+      // Even with a fake .git so isGitProject is true, worktree check fires.
+      fs.writeFileSync(path.join(wt, ".git"), "gitdir: ../../.git/worktrees/x");
+      expect(isWorktreeCheckout(wt)).toBe(true);
+      const r = runGitPullSafe(wt, {});
+      expect(r).toEqual({ pulled: false, reason: "worktree" });
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("detached HEAD is detected (skip case #1)", () => {
+    const root = makeRepo();
+    try {
+      const sha = execSync("git rev-parse HEAD", { cwd: root, encoding: "utf8" }).trim();
+      execSync(`git checkout --quiet --detach ${sha}`, { cwd: root });
+      const r = runGitPullSafe(root, {});
+      expect(r).toEqual({ pulled: false, reason: "detached" });
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("no upstream tracking branch is detected (skip case #2)", () => {
+    const root = makeRepo();
+    try {
+      // Fresh `git init` repo on `main` with no remote — `@{u}` doesn't resolve.
+      const r = runGitPullSafe(root, {});
+      expect(r).toEqual({ pulled: false, reason: "no-upstream" });
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("mid-merge (MERGE_HEAD present) is detected (skip case #3a)", () => {
+    const { work, bare } = makeRepoWithOrigin();
+    try {
+      const sha = execSync("git rev-parse HEAD", { cwd: work, encoding: "utf8" }).trim();
+      fs.writeFileSync(path.join(work, ".git", "MERGE_HEAD"), sha);
+      const r = runGitPullSafe(work, {});
+      expect(r).toEqual({ pulled: false, reason: "mid-merge" });
+    } finally {
+      fs.rmSync(bare, { recursive: true, force: true });
+    }
+  });
+
+  it("mid-rebase (rebase-merge dir) is detected (skip case #3b)", () => {
+    const { work, bare } = makeRepoWithOrigin();
+    try {
+      fs.mkdirSync(path.join(work, ".git", "rebase-merge"), { recursive: true });
+      const r = runGitPullSafe(work, {});
+      expect(r).toEqual({ pulled: false, reason: "mid-rebase" });
+    } finally {
+      fs.rmSync(bare, { recursive: true, force: true });
+    }
+  });
+
+  it("dirty working tree is detected (skip case #4)", () => {
+    const { work, bare } = makeRepoWithOrigin();
+    try {
+      // Modify tracked file — `git diff --quiet HEAD` returns 1
+      fs.writeFileSync(path.join(work, "README.md"), "dirty");
+      const r = runGitPullSafe(work, {});
+      expect(r).toEqual({ pulled: false, reason: "dirty" });
+    } finally {
+      fs.rmSync(bare, { recursive: true, force: true });
+    }
+  });
+
+  it("clean repo with up-to-date upstream actually pulls (success path)", () => {
+    const { work, bare } = makeRepoWithOrigin();
+    try {
+      const r = runGitPullSafe(work, {});
+      expect(r).toEqual({ pulled: true, reason: null });
+    } finally {
+      fs.rmSync(bare, { recursive: true, force: true });
     }
   });
 });

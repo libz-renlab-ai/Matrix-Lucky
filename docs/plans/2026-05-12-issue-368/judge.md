@@ -1,3 +1,6 @@
+> **SUPERSEDED 2026-05-15**: Digital-Twin / cc-status / BPP upload pipeline removed in full. This plan/research/report is kept for historical audit only.
+
+
 # judge.md — issue #368 verification harness
 
 Each probe dumps evidence; an LLM-judge can read the JSON-ish output and rule.

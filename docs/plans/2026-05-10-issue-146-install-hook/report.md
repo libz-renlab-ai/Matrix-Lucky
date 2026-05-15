@@ -1,3 +1,6 @@
+> **SUPERSEDED 2026-05-15**: Digital-Twin / cc-status / BPP upload pipeline removed in full. This plan/research/report is kept for historical audit only.
+
+
 ```
    _____
   ( o>    issue-146 install-hook TODO — fused PR #265 squash-merged

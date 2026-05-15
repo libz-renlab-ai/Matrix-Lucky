@@ -1,3 +1,6 @@
+> **SUPERSEDED 2026-05-15**: Digital-Twin / cc-status / BPP upload pipeline removed in full. This plan/research/report is kept for historical audit only.
+
+
 # Research — issue #299
 
 Pre-implementation reconnaissance. Cited line numbers reference `feat/issue-299` at worktree creation time.

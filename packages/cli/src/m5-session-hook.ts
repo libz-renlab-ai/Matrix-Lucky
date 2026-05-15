@@ -8,6 +8,7 @@
  */
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { execFileSync, spawnSync } from "node:child_process";
 import { findTeamagentRoot } from "./find-teamagent-root.js";
 import { runM5Infect } from "./commands/m5-infect.js";
 import { runM5Bootstrap } from "./commands/m5-bootstrap.js";
@@ -22,8 +23,27 @@ export interface M5SessionResult {
   pushed: boolean;
   /** W15-014: number of team rule files skipped during sync (corrupt JSON / future ts / schema) */
   skipped_count: number;
+  /** Phase 11: 是否真的跑了 git pull（true=拉到了，false=跳过/失败/opt-out） */
+  pulled: boolean;
+  /**
+   * Phase 11: pull 跳过的原因码（detached / no-upstream / mid-rebase / dirty /
+   * timeout / opt-out / worktree / not-git）。null 表示成功 pull 或根本没尝试。
+   */
+  pull_skip_reason: PullSkipReason | null;
   errors: string[];
 }
+
+export type PullSkipReason =
+  | "opt-out"
+  | "worktree"
+  | "detached"
+  | "no-upstream"
+  | "mid-rebase"
+  | "mid-merge"
+  | "dirty"
+  | "timeout"
+  | "fetch-failed"
+  | "merge-failed";
 
 /**
  * 检测当前用户机器是否已经"装了 TeamAgent"——按是否有用户级 knowledge.db 判断。
@@ -38,6 +58,147 @@ export function userHasTeamAgent(homeDir: string): boolean {
 export function isGitProject(projectRoot: string): boolean {
   // worktree 时 .git 是文件，主仓库是目录——都算
   return fs.existsSync(path.join(projectRoot, ".git"));
+}
+
+/**
+ * Phase 11: detect git worktree checkout (not the main checkout).
+ * `.git` is a regular file pointing at `gitdir: .../worktrees/<name>` instead
+ * of being a directory. We refuse to auto-pull in worktrees because:
+ *   1. FIXEDFLOW driver creates `.codex/worktrees/issue-<N>/` as throwaway
+ *      branches; auto-pulling them upstream defeats the per-issue isolation.
+ *   2. `.claude/worktrees/<name>/` is the EnterWorktree path; it's mid-task
+ *      working state, not a long-lived branch.
+ *   3. Path-segment check catches the convention even when an outer process
+ *      uses `git -C` from a sibling dir and `.git` lookup is inconclusive.
+ */
+export function isWorktreeCheckout(projectRoot: string): boolean {
+  try {
+    const gitPath = path.join(projectRoot, ".git");
+    const stat = fs.lstatSync(gitPath);
+    if (stat.isFile()) return true;
+  } catch {
+    // .git 不存在 / 无权限 → 让 isGitProject 那边负责拒绝
+  }
+  const norm = projectRoot.replace(/\\/g, "/");
+  return /\/\.codex\/worktrees\//.test(norm) || /\/\.claude\/worktrees\//.test(norm);
+}
+
+/**
+ * Phase 11: upstream gate for shouldInfect.
+ * Returns true ONLY when `origin/HEAD:.teamagent/manifest.json` exists,
+ * meaning the upstream repo is itself already a TeamAgent project. This kills
+ * the previous "every random clone gets infected" surprise: a teammate `git
+ * clone`-ing some-third-party-lib will NOT have TeamAgent manifests injected
+ * just because they personally have `~/.teamagent/global.db` from another
+ * project.
+ *
+ * Best-effort: any failure (no remote, no origin, no HEAD ref) returns false
+ * — that's the safe default for "should we auto-adopt this repo?".
+ */
+export function upstreamIsTeamAgent(projectRoot: string): boolean {
+  try {
+    execFileSync(
+      "git",
+      ["cat-file", "-e", "origin/HEAD:.teamagent/manifest.json"],
+      {
+        cwd: projectRoot,
+        stdio: ["ignore", "ignore", "ignore"],
+        timeout: 2000,
+      },
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Phase 11 全自动 pull —— SessionStart 阶段在 sync 前先把 origin 的最新规则
+ * 拉到本地工作区，让 m5-sync 看到的就是团队最新状态。
+ *
+ * 5 个静默跳过条件（都是"动 pull 会破坏用户当前工作"的典型场景）：
+ *   1. detached HEAD             → 没分支可 pull
+ *   2. 当前分支无 upstream         → 不知道往哪 pull
+ *   3. 进行中的 rebase / merge    → MERGE_HEAD / rebase-* 存在
+ *   4. 工作区脏（uncommitted）   → pull 会触发 merge 冲突
+ *   5. fetch 5s 内未完成          → 网络慢 / 离线，不阻塞 SessionStart
+ *
+ * env 开关：
+ *   - TEAMAGENT_AUTO_PULL=0  → 整步骤跳过（opt-out）
+ *   - TEAMAGENT_DEBUG=1      → 跳过原因 push 进 errors[]，否则全静默
+ *
+ * 永远不抛错；返回 reason 给 caller 决定是否打 banner。
+ */
+export function runGitPullSafe(
+  projectRoot: string,
+  env: NodeJS.ProcessEnv = process.env,
+): { pulled: boolean; reason: PullSkipReason | null } {
+  if (env["TEAMAGENT_AUTO_PULL"] === "0") {
+    return { pulled: false, reason: "opt-out" };
+  }
+  if (!isGitProject(projectRoot)) {
+    return { pulled: false, reason: null };
+  }
+  if (isWorktreeCheckout(projectRoot)) {
+    return { pulled: false, reason: "worktree" };
+  }
+
+  // 1) detached HEAD?  symbolic-ref 失败即 detached
+  const sym = spawnSync("git", ["symbolic-ref", "--quiet", "HEAD"], {
+    cwd: projectRoot,
+    stdio: ["ignore", "ignore", "ignore"],
+    timeout: 2000,
+  });
+  if (sym.status !== 0) return { pulled: false, reason: "detached" };
+
+  // 2) upstream 存在?  rev-parse @{u} 失败即无 upstream
+  const ups = spawnSync("git", ["rev-parse", "--quiet", "--verify", "@{u}"], {
+    cwd: projectRoot,
+    stdio: ["ignore", "ignore", "ignore"],
+    timeout: 2000,
+  });
+  if (ups.status !== 0) return { pulled: false, reason: "no-upstream" };
+
+  // 3) mid-rebase / mid-merge?
+  const gitDir = path.join(projectRoot, ".git");
+  if (fs.existsSync(path.join(gitDir, "MERGE_HEAD"))) {
+    return { pulled: false, reason: "mid-merge" };
+  }
+  if (
+    fs.existsSync(path.join(gitDir, "rebase-merge")) ||
+    fs.existsSync(path.join(gitDir, "rebase-apply"))
+  ) {
+    return { pulled: false, reason: "mid-rebase" };
+  }
+
+  // 4) dirty?  diff --quiet HEAD 非 0 即脏
+  const dirty = spawnSync("git", ["diff", "--quiet", "HEAD"], {
+    cwd: projectRoot,
+    stdio: ["ignore", "ignore", "ignore"],
+    timeout: 3000,
+  });
+  if (dirty.status !== 0) return { pulled: false, reason: "dirty" };
+
+  // 5) fetch 5s 超时 —— 不打扰用户的弱网环境
+  const fetched = spawnSync("git", ["fetch", "--quiet", "origin"], {
+    cwd: projectRoot,
+    stdio: ["ignore", "ignore", "ignore"],
+    timeout: 5000,
+  });
+  if (fetched.error && (fetched.error as NodeJS.ErrnoException).code === "ETIMEDOUT") {
+    return { pulled: false, reason: "timeout" };
+  }
+  if (fetched.status !== 0) return { pulled: false, reason: "fetch-failed" };
+
+  // 6) ff-only merge —— 永远不允许 SessionStart 自动制造 merge commit
+  const merged = spawnSync("git", ["merge", "--ff-only", "--quiet", "@{u}"], {
+    cwd: projectRoot,
+    stdio: ["ignore", "ignore", "ignore"],
+    timeout: 5000,
+  });
+  if (merged.status !== 0) return { pulled: false, reason: "merge-failed" };
+
+  return { pulled: true, reason: null };
 }
 
 /** 当前项目是否已被 infect。
@@ -72,6 +233,8 @@ export async function runM5Session(input: {
     published_changes: 0,
     pushed: false,
     skipped_count: 0,
+    pulled: false,
+    pull_skip_reason: null,
     errors: [],
   };
 
@@ -88,9 +251,13 @@ export async function runM5Session(input: {
     return r; // 非 git 项目不动
   }
 
-  // 1) 传染：如果当前用户是 "传染源" 且项目未被传染，自动 infect
+  // 1) 传染：当前用户是 "传染源" 且 upstream 已是 TeamAgent 项目，且项目未被
+  // 传染时自动 infect。Phase 11 收紧：除了用户自己装过 TA，还要求 origin/HEAD
+  // 上的 .teamagent/manifest.json 存在 —— 否则 `git clone some-third-party-lib`
+  // 会被无理由认领。input.shouldInfect 显式传入时仍优先（测试 / 强制场景）。
+  const userHasTA = userHasTeamAgent(input.homeDir);
   const shouldInfect =
-    input.shouldInfect ?? userHasTeamAgent(input.homeDir);
+    input.shouldInfect ?? (userHasTA && upstreamIsTeamAgent(projectRoot));
   if (shouldInfect && !isInfected(projectRoot)) {
     try {
       const inf = await runM5Infect({ projectRoot });
@@ -110,6 +277,23 @@ export async function runM5Session(input: {
       r.bootstrapped = !!(bs.applied && bs.diff?.needs_bootstrap);
     } catch (e) {
       r.errors.push(`bootstrap: ${(e as Error).message}`);
+    }
+  }
+
+  // 2.5) Phase 11 自动 git pull —— 把 origin 的最新团队规则拉到本地工作区，
+  // 让下面的 m5-sync 看到的就是团队最新状态。5 个静默跳过场景 + worktree 排除
+  // 在 runGitPullSafe 里实现，不抛错，永不阻塞 SessionStart。
+  if (isInfected(projectRoot)) {
+    try {
+      const pull = runGitPullSafe(projectRoot);
+      r.pulled = pull.pulled;
+      r.pull_skip_reason = pull.reason;
+      if (pull.reason !== null && process.env["TEAMAGENT_DEBUG"] === "1") {
+        r.errors.push(`pull-skip: ${pull.reason}`);
+      }
+    } catch (e) {
+      // runGitPullSafe 自身已经吞所有错；这里 catch 是 paranoia
+      r.errors.push(`pull: ${(e as Error).message}`);
     }
   }
 
@@ -152,6 +336,7 @@ export function renderM5SessionBanner(r: M5SessionResult): string | null {
   const parts: string[] = [];
   if (r.infected) parts.push("🦠 项目已自动 infect");
   if (r.bootstrapped) parts.push("📦 本机已自动补齐缺失项");
+  if (r.pulled) parts.push("⬇ 已自动 pull origin（fast-forward）");
   if (r.synced) parts.push("🔄 已同步团队规则");
   if (r.skipped_count > 0) {
     parts.push(

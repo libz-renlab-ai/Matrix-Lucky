@@ -51,20 +51,19 @@ DB、embedder / updater 状态文件、日志、rollback 备份等。全删，�
 
 ### 3. 确认没有残留 daemon 在跑
 
-TeamAgent 会 spawn 两类后台进程：embedder daemon（`bin-embedder.cjs`）和 uploader
-daemon（`bin-uploader.cjs`）。卸载前确认它们已退出：
+TeamAgent 会 spawn 一类后台进程：embedder daemon（`bin-embedder.cjs`）。卸载前确认它已退出：
 
 ```bash
 # macOS / Linux
-pgrep -fl 'bin-embedder.cjs|bin-uploader.cjs' || echo "no teamagent daemons running"
+pgrep -fl 'bin-embedder.cjs' || echo "no teamagent daemons running"
 # 如有残留，按 PID kill：
-pkill -f 'bin-embedder.cjs' ; pkill -f 'bin-uploader.cjs'
+pkill -f 'bin-embedder.cjs'
 ```
 
 ```powershell
 # Windows PowerShell
 Get-CimInstance Win32_Process |
-  Where-Object { $_.CommandLine -match 'bin-embedder\.cjs|bin-uploader\.cjs' } |
+  Where-Object { $_.CommandLine -match 'bin-embedder\.cjs' } |
   Select-Object ProcessId, CommandLine
 # 如有残留：Stop-Process -Id <pid>
 ```

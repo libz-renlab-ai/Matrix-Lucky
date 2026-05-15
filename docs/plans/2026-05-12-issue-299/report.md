@@ -1,3 +1,6 @@
+> **SUPERSEDED 2026-05-15**: Digital-Twin / cc-status / BPP upload pipeline removed in full. This plan/research/report is kept for historical audit only.
+
+
 # Report — issue #299 post-merge
 
 PR #341 squash-merged at 2026-05-12T04:11:47Z via `gh pr merge 341 --squash --auto --delete-branch` (project rule: squash-only). Merged commit: `af86189`.

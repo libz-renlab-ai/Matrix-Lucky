@@ -1,22 +1,20 @@
 /**
  * CLI surface triage — single source of truth for the 3-tier command split.
  *
- * `teamagent` ships 67 subcommands, but 67 commands are not 67 selling points.
  * Cut once with the knife "can this command prove a business feature?":
  *
- *   - STOREFRONT (8)  — the customer's first glance; curated by the 3 business
+ *   - STOREFRONT (4)  — the customer's first glance; curated by the 2 business
  *                       features (auto-capture/learning, realtime team
- *                       visibility, work recording + centralized upload).
+ *                       visibility).
  *   - FOLDED (13)     — install / uninstall / enable / disable / config
  *                       plumbing; collapsed to a one-line list in `--help`.
- *   - BACKGROUND (46) — engine-room commands; reachable but only listed under
+ *   - BACKGROUND (40) — engine-room commands; reachable but only listed under
  *                       `teamagent help --all`.
  *
  * This is a *presentation* triage only. Every command in all three tiers still
- * has its `case` in bin.ts and stays fully callable — not one line of command
- * implementation changed. `bin-help-triage.test.ts` asserts the union of the
- * three tiers exactly equals the `case` labels declared in bin.ts, so a
- * newly-added command that forgets to pick a tier fails CI.
+ * has its `case` in bin.ts and stays fully callable. `bin-help-triage.test.ts`
+ * asserts the union of the three tiers exactly equals the `case` labels declared
+ * in bin.ts, so a newly-added command that forgets to pick a tier fails CI.
  *
  * The storefront tier is declared ONCE, as `STOREFRONT_ENTRIES` (structured
  * objects). `STOREFRONT_COMMANDS` (the name list the union/drift-guard needs)
@@ -37,7 +35,7 @@ export interface StorefrontEntry {
 }
 
 /**
- * Tier 1 — the 8 storefront commands, in render order, grouped by the business
+ * Tier 1 — the storefront commands, in render order, grouped by the business
  * feature each one proves. This is the ONLY place storefront commands are
  * declared; `STOREFRONT_COMMANDS` and `buildStorefrontHelp()` derive from it.
  */
@@ -67,28 +65,10 @@ export const STOREFRONT_ENTRIES: readonly StorefrontEntry[] = [
     desc: "启动实时 HTML dashboard，周期刷新真实规则/事件数据并本地服务",
   },
   {
-    name: "presence",
-    group: "特性② 团队负责人实时看到每个成员在干什么",
-    usage: "teamagent presence",
-    desc: "探测当前 teammate 实时状态，输出 active/idle/offline 绿灯状态",
-  },
-  {
     name: "daily",
     group: "特性② 团队负责人实时看到每个成员在干什么",
     usage: "teamagent daily",
     desc: "跨项目扫今天活动，输出 member×project 一句话日报骨架",
-  },
-  {
-    name: "record",
-    group: "特性③ 工作录像 + 上传中心化存储",
-    usage: "teamagent record <start|stop|import>",
-    desc: "本地工作录音子命令（ffmpeg → Opus/OGG → queue）",
-  },
-  {
-    name: "video",
-    group: "特性③ 工作录像 + 上传中心化存储",
-    usage: "teamagent video upload <file>",
-    desc: "上传屏幕录像到中心化存储（mov/mp4/webm/mkv），返回 shareable link",
   },
 ];
 
@@ -141,8 +121,6 @@ export const BACKGROUND_COMMANDS = [
   "bug-report",
   "recording",
   "pack",
-  "digital-twin",
-  "bpp",
   "fixture",
   "symphony",
   "compile",
@@ -154,7 +132,6 @@ export const BACKGROUND_COMMANDS = [
   "review-candidates",
   "team-export",
   "team-import",
-  "team",
   "sync",
   "pr-cycle",
   "migrate-auto",
@@ -196,7 +173,7 @@ export function buildStorefrontHelp(): string {
   const lines: string[] = [
     "teamagent — TeamAgent CLI",
     "",
-    "默认只列 8 个门面命令（按 3 大业务特性精选）。67 个命令全部仍可调用。",
+    "默认只列门面命令（按 2 大业务特性精选）。所有命令仍可调用。",
   ];
   let lastGroup = "";
   for (const entry of STOREFRONT_ENTRIES) {
@@ -208,10 +185,10 @@ export function buildStorefrontHelp(): string {
   }
   lines.push(
     "",
-    "配置 / 生命周期（13 个安装·卸载·开关·配置命令已折叠，完整帮助见 teamagent help --all）:",
+    "配置 / 生命周期（安装·卸载·开关·配置命令已折叠，完整帮助见 teamagent help --all）:",
     `  ${FOLDED_COMMANDS.join(" · ")}`,
     "",
-    "完整 67 个命令（含 46 个后台引擎室命令）:  teamagent help --all",
+    "完整命令列表（含后台引擎室命令）:  teamagent help --all",
     "",
     "环境变量:",
     "  TEAMAGENT_VISIBILITY=silent|smart|verbose    归因渲染模式（默认 verbose）",

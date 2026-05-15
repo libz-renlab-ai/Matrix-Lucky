@@ -1,3 +1,6 @@
+> **SUPERSEDED 2026-05-15**: Digital-Twin / cc-status / BPP upload pipeline removed in full. This plan/research/report is kept for historical audit only.
+
+
 # report.md — issue #343 PR-1 implementation summary
 
 > Pre-PR report (Boris workflow `report.md` step). PR-1 of 3 against #343.

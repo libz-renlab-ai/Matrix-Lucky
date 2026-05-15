@@ -1,3 +1,6 @@
+> **SUPERSEDED 2026-05-15**: Digital-Twin / cc-status / BPP upload pipeline removed in full. This plan/research/report is kept for historical audit only.
+
+
 # PR 430 验收清单 · 对照 acceptance.md 逐条勾选
 
 > Implements `docs/plans/2026-05-13-bpp-full-system-acceptance.md` §5 item 8
