@@ -1,0 +1,2 @@
+{"type":"user","uuid":"u1","parentUuid":null,"timestamp":"2026-04-20T10:00:00Z","sessionId":"rcc-02","message":{"role":"user","content":[{"type":"text","text":"不对，这个实现是错了"}]}}
+{"type":"assistant","uuid":"a1","parentUuid":"u1","timestamp":"2026-04-20T10:00:05Z","sessionId":"rcc-02","message":{"role":"assistant","content":[{"type":"text","text":"收到"}]}}

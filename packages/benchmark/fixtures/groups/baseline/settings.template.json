@@ -1,0 +1,6 @@
+{
+  "permissions": {
+    "allow": ["Write", "Edit", "MultiEdit", "Read", "Bash", "Glob", "Grep"]
+  },
+  "hooks": {}
+}

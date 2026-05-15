@@ -1,0 +1,17 @@
+{
+  "recipe_id": "VERIFY-TBRAIN-001",
+  "run_id": "20260502T000000Z-real-task-1",
+  "task_title": "Align run_id stability + task_title field across docs/teambrain/",
+  "exit_code": 0,
+  "metrics": {
+    "anchor_hits": 22,
+    "canonical_paths_ok": 12,
+    "canonical_paths_missing": 0,
+    "unstaged_files_committed": 4
+  },
+  "raw_evidence_dir": ".judge/20260502T000000Z-real-task-1",
+  "archive_dir": "docs/teambrain/evidence/20260502T000000Z-real-task-1",
+  "raw_judge_path": ".judge/20260502T000000Z-real-task-1/judge.json",
+  "failure_list_path": "docs/teambrain/evidence/20260502T000000Z-real-task-1/failures.md",
+  "missing_evidence": false
+}

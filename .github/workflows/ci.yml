@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            node-version: 22
+            typecheck-command: pnpm typecheck
+            test-command: pnpm test
+            verify-command: pnpm verify
+          - os: windows-latest
+            node-version: 22
+            # Windows is significantly slower for our full Vitest suite (fileParallelism=false workaround).
+            # Keep a fast smoke check to catch platform regressions without doubling CI wall time.
+            typecheck-command: pnpm --filter @teamagent/cli typecheck
+            test-command: pnpm vitest run packages/cli/src/__tests__/bin-stop.test.ts packages/cli/src/__tests__/init.test.ts packages/adapters/src/storage/sqlite/__tests__/schema-v6.test.ts
+            verify-command: echo "skip verify on Windows smoke lane"
+    steps:
+      - uses: actions/checkout@v5
+      - name: Verify newsboard format (docs/newsboard.md ↔ hook contract)
+        if: matrix.os == 'ubuntu-latest'
+        run: bash scripts/verify-newsboard-format.sh
+      - uses: pnpm/action-setup@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: ${{ matrix.typecheck-command }}
+      - run: ${{ matrix.test-command }}
+      # M7: 5 个验证场景跑通才算 release-ready（mock LLM，CI 友好）
+      - run: ${{ matrix.verify-command }}

@@ -1,0 +1,166 @@
+嘎嘎~ 鸭鸭来啦！下面用小鸭鸭的口吻把 TeamBrain 全部 **49 个已验证产品功能** 讲一遍哦！
+
+---
+
+## TeamBrain 产品功能大全（49 项）—— 讲给可爱小鸭听
+
+### 1. 核心学习闭环（9 项）🐣
+
+鸭鸭说：系统要能**记录经验 → 编译规则 → 展示归因**，这样 AI 才不会重复踩坑！
+
+| 功能 | 小鸭解释 |
+|------|---------|
+| 产品入口能打开 | 鸭总能看到菜单，不是空壳！ |
+| 最小学习闭环 | 记录→编译→归因，演示跑得通 |
+| AI 犯错前提醒 | AI 准备走错路时，系统提前拦住 |
+| 纠正一次下次记住 | 用户纠正一次，AI 以后不犯同样的错 |
+| 知识会自动进化 | 有用经验更可信，没用经验自动降级 |
+| 看得见的统计 | 鸭总能看到学了多少经验、分布在哪些层 |
+| 主动记录坑点 | 用户不用等 AI 犯错，可以自己先把坑记进去 |
+| 安全沙箱 | 新改动先在隔离环境试，不污染主工作区 |
+| 固定 canned answers | POSTPR/DOGFOOD/BUGREPORT/PRESHIP/FASTPROBE 规则稳定可用 |
+
+---
+
+### 2. 自动捕获 & 提取（3 项）🎯
+
+鸭鸭说：AI 每次犯的错都要**自动抓住**，不要漏掉！
+
+| 功能 | 小鸭解释 |
+|------|---------|
+| 自动捕获每次 session 的纠正 | Stop hook 全自动提取 |
+| 真实 session JSONL 提取 judge | 召回率 ≥100% |
+| 纠正检测器处理真实 JSONL 格式 | 各种奇怪形状都能解析 |
+
+---
+
+### 3. 校准器 v2（3 项）⚖️
+
+鸭鸭说：知识要有**信任度评分**，不能所有经验都一个价！
+
+| 功能 | 小鸭解释 |
+|------|---------|
+| 校准器发 `calibrator.adjustment` 事件 | 用户拒绝时自动降级信任 |
+| Wilson LB + 5 层置信区间 | 统计上靠谱的评分算法 |
+| 验证器发 `validator.failure` 事件 | 坏规则模式自动标记失败 |
+
+---
+
+### 4. 规则质量 & 匹配（5 项）🔍
+
+鸭鸭说：规则本身也要**体检**，不能带病上岗！
+
+| 功能 | 小鸭解释 |
+|------|---------|
+| 规则质量验证器 | 查 identical_patterns / confidence_range / missing_fields |
+| embedding 冲突检测 | 两个规则太像会报警 |
+| canned-answer 规则验证 | 规则本身也要验证 |
+| Matcher B-055 词边界守卫 | 防止 wrong_pattern 乱触发 |
+| Matcher 范围过滤 | file_types / paths glob 过滤正确 |
+
+---
+
+### 5. 团队知识共享 & 同步（5 项）🌐
+
+鸭鸭说：**个人 / 团队 / 全局** 三层知识隔离，各管各的！
+
+| 功能 | 小鸭解释 |
+|------|---------|
+| 三层知识范围 | personal / team / global |
+| 团队知识导出/导入 | 项目之间互导经验 |
+| 跨机器同步 | `teamagent sync push/pull` |
+| sync push 写远程 git 分支 | 经验推送到远端 |
+| sync pull 合并远程规则到本地 | 把别人的经验拉进来 |
+
+---
+
+### 6. PII 去标识化（2 项）🔒
+
+鸭鸭说：敏感信息要**先脱敏再分享**，不然会泄露！
+
+| 功能 | 小鸭解释 |
+|------|---------|
+| PII 去标识化 | API key / JWT / 手机号 / 信用卡 / AWS key 都能脱 |
+| 团队分享前自动清洗 | export 前先过一遍脱敏器 |
+
+---
+
+### 7. 多工具 & IDE 集成（5 项）🔌
+
+鸭鸭说：AI 干活时要有**保镖**盯着，关键时刻拦住！
+
+| 功能 | 小鸭解释 |
+|------|---------|
+| PreToolUse hook 拦截工具调用 | 执行前就拦住危险操作 |
+| Stop hook 扫描 AI 叙事 | 讲的内容有坑就提醒 |
+| AttributionBus 发结构化归因事件 | 所有"系统帮你做了啥"都有记录 |
+| MCP server `check_pitfall` | 三步 handshake：initialize / tools-list / tools-call |
+| Cursor `.cursorrules` 编译器 | 把规则导出成 Cursor 能吃的文件 |
+
+---
+
+### 8. Doctor / 安装诊断（4 项）🩺
+
+鸭鸭说：装好了要**体检**，看看各个部件都注册上没！
+
+| 功能 | 小鸭解释 |
+|------|---------|
+| `teamagent doctor` 报告 hook 注册状态 | 确认 PreToolUse / Stop hook 都在 |
+| 报告 plugin-sync 状态 | skill 插件有没有同步 |
+| 报告 MCP 是否可达 | check_pitfall 能不能调通 |
+| hook-registered 检测正确 | 安装完能查到 hook 痕迹 |
+
+---
+
+### 9. A/B 基准测试（3 项）📊
+
+鸭鸭说：到底加不加 TeamAgent 差多少？**跑个对照实验**就知道！
+
+| 功能 | 小鸭解释 |
+|------|---------|
+| A/B benchmark harness | 左边裸 Claude，右边加规则，对比看 |
+| 产出每条 arm 的 avoidance-rate | 量化 AI 少踩了多少坑 |
+| benchmark 写 judge.json | 存 exit_code + metrics + evidence_dir |
+
+---
+
+### 10. CLI 命令（13 项）⌨️
+
+鸭鸭说：鸭总能敲命令干活，这些是**武器库**！
+
+| 命令 | 小鸭解释 |
+|------|---------|
+| `teamagent skeleton-demo` | M0 走钢丝演示，全绿 |
+| `teamagent pitfall` 交互+非交互 | 录坑点 |
+| `teamagent stats` | 看知识统计 |
+| `teamagent verify` | 功能验证跑起来 |
+| `teamagent calibrate` | 触发校准器 |
+| `teamagent analyze` | 分析 session |
+| `teamagent review` | PR 复查 |
+| `teamagent install-hook / uninstall-hook` | 装/卸 hook |
+| `teamagent doctor` | 诊断安装状态 |
+| `teamagent sync push / pull` | 跨机器同步 |
+| `teamagent mcp-server` | stdio MCP 服务入口 |
+
+---
+
+## 鸭鸭总结
+
+呷呷~ TeamBrain 一共 **49 个已验证产品功能**，分布在这几个大类：
+
+```
+核心学习闭环    9 个  ← 最核心，鸭总最关心
+自动捕获提取    3 个  ← 自动记住教训
+校准器 v2      3 个  ← 知识信任度
+规则质量匹配    5 个  ← 规则体检
+团队知识共享    5 个  ← 团队大脑
+PII 去标识化    2 个  ← 隐私保护
+多工具 IDE 集成  5 个  ← 保镖拦截
+Doctor 诊断    4 个  ← 安装体检
+A/B 基准测试    3 个  ← 效果量化
+CLI 命令      13 个  ← 武器库
+─────────────────────
+合计           49 个  ✅
+```
+
+>ω< 全部都是**已验证**的，没有 WIP、没有 PLANNED、没有 MISSING！鸭鸭最讨厌画饼啦~

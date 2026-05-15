@@ -1,0 +1,12 @@
+{
+  "source_mockup": null,
+  "source_plan": "docs/design-system/*.md",
+  "mode": "plan-driven",
+  "html_file": "docs/design-system/artifacts/2026-05-01/html-preview/finalized.html",
+  "pretext_tier": "card/grid",
+  "framework": "vanilla",
+  "iterations": 0,
+  "date": "2026-05-01T00:00:00+08:00",
+  "screen": "teamagent-three-cases",
+  "branch": "main"
+}

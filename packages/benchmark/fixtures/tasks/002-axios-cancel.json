@@ -1,0 +1,11 @@
+{
+  "id": "002-axios-cancel",
+  "name": "axios cancel request",
+  "category": "api_currency",
+  "prompt": "Create a file named http-client.ts in the current directory. Export a TypeScript function fetchWithCancel(url: string) that uses axios to make a cancellable HTTP GET request. Use the axios.CancelToken API to support cancellation — create a CancelToken.source(), pass source.token in the axios config, and return { promise, cancel: () => source.cancel() }. Write the file now.",
+  "evaluator": {
+    "type": "pattern",
+    "wrong_patterns": ["CancelToken", "axios\\.Cancel"],
+    "correct_patterns": ["AbortController", "AbortSignal"]
+  }
+}

@@ -1,0 +1,84 @@
+
+> teamagent@0.11.0 prebuild C:\Users\tianhaoxuan\teamagent-test01\TeamBrain\.codex\worktrees\issue-299\packages\teamagent
+> node -e "require('fs').rmSync('dist',{recursive:true,force:true})"
+
+
+> teamagent@0.11.0 build C:\Users\tianhaoxuan\teamagent-test01\TeamBrain\.codex\worktrees\issue-299\packages\teamagent
+> tsup
+
+[34mCLI[39m Building entry: {"bin":"../cli/src/bin.ts"}
+[34mCLI[39m Using tsconfig: tsconfig.json
+[34mCLI[39m Building entry: {"bin-pre-tool-use":"../cli/src/bin-pre-tool-use.ts","bin-post-tool-use":"../cli/src/bin-post-tool-use.ts","bin-stop":"../cli/src/bin-stop.ts","bin-session-end":"../cli/src/bin-session-end.ts","bin-session-start":"../cli/src/bin-session-start.ts","bin-pre-compact":"../cli/src/bin-pre-compact.ts","bin-user-prompt-submit":"../cli/src/bin-user-prompt-submit.ts","bin-updater":"../cli/src/bin-updater.ts","bin-digital-twin-tap":"../cli/src/bin-digital-twin-tap.ts"}
+[34mCLI[39m Using tsconfig: tsconfig.json
+[34mCLI[39m tsup v8.5.1
+[34mCLI[39m Using tsup config: C:\Users\tianhaoxuan\teamagent-test01\TeamBrain\.codex\worktrees\issue-299\packages\teamagent\tsup.config.ts
+[34mCLI[39m tsup v8.5.1
+[34mCLI[39m Using tsup config: C:\Users\tianhaoxuan\teamagent-test01\TeamBrain\.codex\worktrees\issue-299\packages\teamagent\tsup.config.ts
+[34mCLI[39m Target: node22
+[34mESM[39m Build start
+[34mCLI[39m Target: node22
+[34mCJS[39m Build start
+[32mESM[39m [1mdist\migrate-auto-PNP3F6GW.js      [22m[32m1.43 KB[39m
+[32mESM[39m [1mdist\whatsnew-P54YQIUO.js          [22m[32m3.75 KB[39m
+[32mESM[39m [1mdist\update-4SFG3EAD.js            [22m[32m16.00 KB[39m
+[32mESM[39m [1mdist\github-api-3MFVCIRV.js        [22m[32m4.06 KB[39m
+[32mESM[39m [1mdist\calibrate-WWLPJPPV.js         [22m[32m435.00 B[39m
+[32mESM[39m [1mdist\first-run-S66W5IEI.js         [22m[32m4.38 KB[39m
+[32mESM[39m [1mdist\verify-IMB4RCYN.js            [22m[32m463.00 B[39m
+[32mESM[39m [1mdist\compile-UKFHPHGN.js           [22m[32m419.00 B[39m
+[32mESM[39m [1mdist\arg-utils-XGBSYGII.js         [22m[32m849.00 B[39m
+[32mESM[39m [1mdist\try-Q6XVQIQG.js               [22m[32m3.11 KB[39m
+[32mESM[39m [1mdist\migrate-v7-Z3MMUIGB.js        [22m[32m3.23 KB[39m
+[32mESM[39m [1mdist\demo-26ZCGNPW.js              [22m[32m10.33 KB[39m
+[32mESM[39m [1mdist\pitfall-MLJNISMU.js           [22m[32m497.00 B[39m
+[32mESM[39m [1mdist\migrate-v1-to-v2-FCAFODBT.js  [22m[32m2.70 KB[39m
+[32mESM[39m [1mdist\install-hook-5VTTG4XN.js      [22m[32m549.00 B[39m
+[32mESM[39m [1mdist\warmup-state-4E7RVQWL.js      [22m[32m395.00 B[39m
+[32mESM[39m [1mdist\install-user-hook-TVNYP3LI.js [22m[32m189.00 B[39m
+[32mESM[39m [1mdist\warmup-BVYKLCUV.js            [22m[32m9.08 KB[39m
+[32mESM[39m [1mdist\init-XAT7VDDY.js              [22m[32m579.00 B[39m
+[32mESM[39m [1mdist\doctor-CMLGGUWC.js            [22m[32m991.00 B[39m
+[32mESM[39m [1mdist\uninstall-NYJ5LBJQ.js         [22m[32m359.00 B[39m
+[32mESM[39m [1mdist\chunk-YP5NRTS6.js             [22m[32m11.22 KB[39m
+[32mESM[39m [1mdist\reclassify-OHWDWLR3.js        [22m[32m3.07 KB[39m
+[32mESM[39m [1mdist\chunk-KNFCXSUB.js             [22m[32m7.44 KB[39m
+[32mESM[39m [1mdist\chunk-TRMCJ5KI.js             [22m[32m21.65 KB[39m
+[32mESM[39m [1mdist\bin.js                        [22m[32m344.38 KB[39m
+[32mESM[39m [1mdist\chunk-H776XDI2.js             [22m[32m23.55 KB[39m
+[32mESM[39m [1mdist\chunk-ZIUCUPFV.js             [22m[32m2.49 KB[39m
+[32mESM[39m [1mdist\chunk-DD5ZLSEM.js             [22m[32m57.30 KB[39m
+[32mESM[39m [1mdist\chunk-MCAKDVT7.js             [22m[32m669.00 B[39m
+[32mESM[39m [1mdist\chunk-Z4VH2K75.js             [22m[32m5.71 KB[39m
+[32mESM[39m [1mdist\chunk-62GT3EQR.js             [22m[32m36.30 KB[39m
+[32mESM[39m [1mdist\chunk-YX6HSDFF.js             [22m[32m23.39 KB[39m
+[32mESM[39m [1mdist\src-COTLD4H6.js               [22m[32m5.68 KB[39m
+[32mESM[39m [1mdist\dual-layer-store-AO4EZIS4.js  [22m[32m175.00 B[39m
+[32mESM[39m [1mdist\install-plugins-BSDAENEX.js   [22m[32m423.00 B[39m
+[32mESM[39m [1mdist\chunk-AOKBNZWR.js             [22m[32m9.19 KB[39m
+[32mESM[39m [1mdist\m5-share-CWGKOMSC.js          [22m[32m335.00 B[39m
+[32mESM[39m [1mdist\chunk-HBDJW3IS.js             [22m[32m4.87 KB[39m
+[32mESM[39m [1mdist\src-ZPP6L4CV.js               [22m[32m1.68 KB[39m
+[32mESM[39m [1mdist\chunk-AXOWJFQC.js             [22m[32m5.28 KB[39m
+[32mESM[39m [1mdist\m5-delete-ZFIDYXUY.js         [22m[32m343.00 B[39m
+[32mESM[39m [1mdist\chunk-PKOXXYS4.js             [22m[32m3.71 KB[39m
+[32mESM[39m [1mdist\migrate-v6-RK3M2XBD.js        [22m[32m457.00 B[39m
+[32mESM[39m [1mdist\chunk-ESHS5ZCN.js             [22m[32m5.08 KB[39m
+[32mESM[39m [1mdist\chunk-EHS4WAHC.js             [22m[32m8.99 KB[39m
+[32mESM[39m [1mdist\chunk-MXJDRQEB.js             [22m[32m17.99 KB[39m
+[32mESM[39m [1mdist\chunk-SEDU3TDZ.js             [22m[32m2.93 KB[39m
+[32mESM[39m [1mdist\chunk-ZWU7KJPP.js             [22m[32m1.95 KB[39m
+[32mESM[39m [1mdist\chunk-7Z4K5BTU.js             [22m[32m233.02 KB[39m
+[32mESM[39m [1mdist\chunk-4RSUQUKR.js             [22m[32m125.80 KB[39m
+[32mESM[39m [1mdist\chunk-YV4MDFTH.js             [22m[32m3.69 KB[39m
+[32mESM[39m [1mdist\chunk-HX24KLH4.js             [22m[32m5.40 MB[39m
+[32mESM[39m ⚡️ Build success in 800ms
+[32mCJS[39m [1mdist\bin-post-tool-use.cjs      [22m[32m192.39 KB[39m
+[32mCJS[39m [1mdist\bin-digital-twin-tap.cjs   [22m[32m73.05 KB[39m
+[32mCJS[39m [1mdist\bin-pre-tool-use.cjs       [22m[32m1.65 MB[39m
+[32mCJS[39m [1mdist\bin-user-prompt-submit.cjs [22m[32m1.66 MB[39m
+[32mCJS[39m [1mdist\bin-session-end.cjs        [22m[32m7.32 MB[39m
+[32mCJS[39m [1mdist\bin-stop.cjs               [22m[32m7.31 MB[39m
+[32mCJS[39m [1mdist\bin-updater.cjs            [22m[32m7.11 MB[39m
+[32mCJS[39m [1mdist\bin-session-start.cjs      [22m[32m7.14 MB[39m
+[32mCJS[39m [1mdist\bin-pre-compact.cjs        [22m[32m7.31 MB[39m
+[32mCJS[39m ⚡️ Build success in 1282ms

@@ -1,0 +1,6 @@
+{"type":"user","uuid":"u1","parentUuid":null,"timestamp":"2026-04-20T09:00:00Z","sessionId":"rcc-01","message":{"role":"user","content":"改下 X"}}
+{"type":"assistant","uuid":"a1","parentUuid":"u1","timestamp":"2026-04-20T09:00:05Z","sessionId":"rcc-01","message":{"role":"assistant","content":[{"type":"text","text":"好的，我改"},{"type":"tool_use","id":"t1","name":"Edit","input":{"file_path":"src/x.ts","old_string":"a","new_string":"b"}}]}}
+{"type":"user","uuid":"u-tr1","parentUuid":"a1","timestamp":"2026-04-20T09:00:06Z","sessionId":"rcc-01","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"t1","content":"file modified"}]}}
+{"type":"assistant","uuid":"a2","parentUuid":"u-tr1","timestamp":"2026-04-20T09:00:08Z","sessionId":"rcc-01","message":{"role":"assistant","content":[{"type":"text","text":"已完成"}]}}
+{"type":"user","uuid":"u2","parentUuid":"a2","timestamp":"2026-04-20T09:00:20Z","sessionId":"rcc-01","message":{"role":"user","content":"不对，改错了"}}
+{"type":"assistant","uuid":"a3","parentUuid":"u2","timestamp":"2026-04-20T09:00:25Z","sessionId":"rcc-01","message":{"role":"assistant","content":[{"type":"text","text":"抱歉"}]}}

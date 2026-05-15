@@ -1,0 +1,47 @@
+zsh -ic 'claudefast'
+
+TeamBrain on  claude/wip [✘!?] via  v22.21.1
+❯ zsh -ic 'claudefast'
+ ▐▛███▜▌   Claude Code v2.1.122
+▝▜█████▛▘  MiniMax-M2.7-highspeed · API Usage Billing
+  ▘▘ ▝▝    ~/projects/TeamBrain
+
+❯ Without reading any file from disk, confirm whether you have a registered skill named exactly canary. Use only your in-memory skill registry. Output JSON only with keys registered, name, and status. If canary is
+  registered, copy this JSON exactly: {"registered":true,"name":"canary","status":"found"}. If canary is not registered, copy this JSON exactly: {"registered":false,"name":null,"status":"missing"}.
+
+⏺ {"registered":true,"name":"canary","status":"found"}
+  ⎿  Stop says: [laziness-guard] BLOCKED: missing or malformed self-report (no <laziness-self-report> block found)
+
+⏺ Ran 7 stop hooks (ctrl+o to expand)
+  ⎿  Stop hook error: Your last message is missing (or has a malformed) <laziness-self-report> block (no <laziness-self-report> block found). Append this exact block to the END of every message before stopping:
+
+  <laziness-self-report>
+  premature_stopping: <true|false>
+  permission_seeking: <true|false>
+  ownership_dodging: <true|false>
+  simplest_fix: <true|false>
+  reasoning_loop: <true|false>
+  known_limitation: <true|false>
+  </laziness-self-report>
+
+  For each of the 6 categories, honestly evaluate whether your last work exhibited that pattern. Re-emit your message with the report appended. If any bool is true, you must continue the work in the same turn
+  instead of stopping.
+
+⏺ {"registered":true,"name":"canary","status":"found"}
+
+  premature_stopping: false
+  permission_seeking: false
+  ownership_dodging: false
+  simplest_fix: false
+  reasoning_loop: false
+  known_limitation: false
+
+✻ Crunched for 13s
+
+❯ /export /Users/m1/projects/TeamBrain/docs/canary-verify/exports/canary-session.txt
+  ⎿  Conversation exported to: /Users/m1/projects/TeamBrain/docs/canary-verify/exports/canary-session.txt
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+❯ 
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ? for shortcuts                                                                                                                                                                                          ◈ max · /effort

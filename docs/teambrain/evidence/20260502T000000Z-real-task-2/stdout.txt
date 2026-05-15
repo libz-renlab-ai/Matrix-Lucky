@@ -1,0 +1,78 @@
+=== Run 1: harness against Task #1 (positive case, exit 0) ===
+anchor: docs/teambrain/TASK_TEMPLATE.md hits=3
+anchor: docs/teambrain/VERIFY_TEMPLATE.md hits=14
+anchor: docs/teambrain/agent_rules/claude.md hits=2
+anchor: docs/teambrain/evidence/README.md hits=7
+canon: docs/teambrain/README.md OK
+canon: docs/teambrain/STRUCTURE.md OK
+canon: docs/teambrain/TRAPS.md OK
+canon: docs/teambrain/TRAP_FORMAT.md OK
+canon: docs/teambrain/TASK_TEMPLATE.md OK
+canon: docs/teambrain/VERIFY_TEMPLATE.md OK
+canon: docs/teambrain/CONVERGENCE.md OK
+canon: docs/teambrain/agent_rules/claude.md OK
+canon: docs/teambrain/agent_rules/codex.md OK
+canon: docs/teambrain/evidence/README.md OK
+canon: docs/teambrain/convergence/first-pass-findings.md OK
+canon: docs/teambrain/convergence/history.md OK
+archive: docs/teambrain/evidence/20260502T000000Z-real-task-1/INDEX.md PRESENT
+archive: docs/teambrain/evidence/20260502T000000Z-real-task-1/transcript.md PRESENT
+archive: docs/teambrain/evidence/20260502T000000Z-real-task-1/stdout.txt PRESENT
+archive: docs/teambrain/evidence/20260502T000000Z-real-task-1/stderr.txt PRESENT
+archive: docs/teambrain/evidence/20260502T000000Z-real-task-1/failures.md PRESENT
+archive: docs/teambrain/evidence/20260502T000000Z-real-task-1/judge-summary.json PRESENT
+
+RESULT recipe_id=VERIFY-TBRAIN-001 run_id=20260502T000000Z-real-task-1 exit_code=0 anchor_hits=26 canon_ok=12/12 archive_present=6/6
+
+=== Run 2: harness against Task #2 PRE-archive (negative case, exit 2) ===
+anchor: docs/teambrain/TASK_TEMPLATE.md hits=3
+anchor: docs/teambrain/VERIFY_TEMPLATE.md hits=14
+anchor: docs/teambrain/agent_rules/claude.md hits=2
+anchor: docs/teambrain/evidence/README.md hits=7
+canon: docs/teambrain/README.md OK
+canon: docs/teambrain/STRUCTURE.md OK
+canon: docs/teambrain/TRAPS.md OK
+canon: docs/teambrain/TRAP_FORMAT.md OK
+canon: docs/teambrain/TASK_TEMPLATE.md OK
+canon: docs/teambrain/VERIFY_TEMPLATE.md OK
+canon: docs/teambrain/CONVERGENCE.md OK
+canon: docs/teambrain/agent_rules/claude.md OK
+canon: docs/teambrain/agent_rules/codex.md OK
+canon: docs/teambrain/evidence/README.md OK
+canon: docs/teambrain/convergence/first-pass-findings.md OK
+canon: docs/teambrain/convergence/history.md OK
+archive: docs/teambrain/evidence/20260502T000000Z-real-task-2/INDEX.md MISSING
+archive: docs/teambrain/evidence/20260502T000000Z-real-task-2/transcript.md MISSING
+archive: docs/teambrain/evidence/20260502T000000Z-real-task-2/stdout.txt MISSING
+archive: docs/teambrain/evidence/20260502T000000Z-real-task-2/stderr.txt MISSING
+archive: docs/teambrain/evidence/20260502T000000Z-real-task-2/failures.md MISSING
+archive: docs/teambrain/evidence/20260502T000000Z-real-task-2/judge-summary.json MISSING
+
+RESULT recipe_id=VERIFY-TBRAIN-002 run_id=20260502T000000Z-real-task-2 exit_code=2 anchor_hits=26 canon_ok=12/12 archive_present=0/6
+
+=== Run 3: harness against Task #2 POST-archive (positive case, exit 0) — see below after archive build ===
+
+anchor: docs/teambrain/TASK_TEMPLATE.md hits=3
+anchor: docs/teambrain/VERIFY_TEMPLATE.md hits=14
+anchor: docs/teambrain/agent_rules/claude.md hits=2
+anchor: docs/teambrain/evidence/README.md hits=7
+canon: docs/teambrain/README.md OK
+canon: docs/teambrain/STRUCTURE.md OK
+canon: docs/teambrain/TRAPS.md OK
+canon: docs/teambrain/TRAP_FORMAT.md OK
+canon: docs/teambrain/TASK_TEMPLATE.md OK
+canon: docs/teambrain/VERIFY_TEMPLATE.md OK
+canon: docs/teambrain/CONVERGENCE.md OK
+canon: docs/teambrain/agent_rules/claude.md OK
+canon: docs/teambrain/agent_rules/codex.md OK
+canon: docs/teambrain/evidence/README.md OK
+canon: docs/teambrain/convergence/first-pass-findings.md OK
+canon: docs/teambrain/convergence/history.md OK
+archive: docs/teambrain/evidence/20260502T000000Z-real-task-2/INDEX.md PRESENT
+archive: docs/teambrain/evidence/20260502T000000Z-real-task-2/transcript.md PRESENT
+archive: docs/teambrain/evidence/20260502T000000Z-real-task-2/stdout.txt PRESENT
+archive: docs/teambrain/evidence/20260502T000000Z-real-task-2/stderr.txt PRESENT
+archive: docs/teambrain/evidence/20260502T000000Z-real-task-2/failures.md PRESENT
+archive: docs/teambrain/evidence/20260502T000000Z-real-task-2/judge-summary.json PRESENT
+
+RESULT recipe_id=VERIFY-TBRAIN-002 run_id=20260502T000000Z-real-task-2 exit_code=0 anchor_hits=26 canon_ok=12/12 archive_present=6/6

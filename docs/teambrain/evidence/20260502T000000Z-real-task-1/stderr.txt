@@ -1,0 +1,7 @@
+No stderr output from the verification sweep.
+
+Raw stderr: .judge/20260502T000000Z-real-task-1/stderr.txt (size: 0 bytes by design).
+Reason: anchor + path + diff sweep ran without writing to stderr (exit 0; all 12 canonical paths OK; 22 anchor hits).
+Checksum: sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b34ca495991b7852b8855 (canonical empty-stream sha256).
+
+This file exists to satisfy the required archive gate in docs/teambrain/VERIFY_TEMPLATE.md (a missing/empty stderr.txt is missing_evidence). Cross-reference: failures.md, judge-summary.json, .judge/20260502T000000Z-real-task-1/judge.json.

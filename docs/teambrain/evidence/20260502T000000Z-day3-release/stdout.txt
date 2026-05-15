@@ -1,0 +1,39 @@
+# stdout — 20260502T000000Z-day3-release
+
+Captured from `scripts/verify/tbrain-verify.sh VERIFY-TBRAIN-003 20260502T000000Z-day3-release --task-title "Day 3 release v0.1 — onboarding/usage docs + verbal-rule closure"` after the 6-file archive was built. Raw stdout lives at `.judge/20260502T000000Z-day3-release/stdout.txt`.
+
+```
+== anchor sweep ==
+anchor: docs/teambrain/TASK_TEMPLATE.md hits=8
+anchor: docs/teambrain/VERIFY_TEMPLATE.md hits=11
+anchor: docs/teambrain/agent_rules/claude.md hits=4
+anchor: docs/teambrain/evidence/README.md hits=4
+== path sweep ==
+canon: docs/teambrain/README.md OK
+canon: docs/teambrain/STRUCTURE.md OK
+canon: docs/teambrain/TRAPS.md OK
+canon: docs/teambrain/TRAP_FORMAT.md OK
+canon: docs/teambrain/TASK_TEMPLATE.md OK
+canon: docs/teambrain/VERIFY_TEMPLATE.md OK
+canon: docs/teambrain/CONVERGENCE.md OK
+canon: docs/teambrain/agent_rules/claude.md OK
+canon: docs/teambrain/agent_rules/codex.md OK
+canon: docs/teambrain/evidence/README.md OK
+canon: docs/teambrain/convergence/first-pass-findings.md OK
+canon: docs/teambrain/convergence/history.md OK
+== archive gate ==
+archive: docs/teambrain/evidence/20260502T000000Z-day3-release/INDEX.md PRESENT
+archive: docs/teambrain/evidence/20260502T000000Z-day3-release/transcript.md PRESENT
+archive: docs/teambrain/evidence/20260502T000000Z-day3-release/stdout.txt PRESENT
+archive: docs/teambrain/evidence/20260502T000000Z-day3-release/stderr.txt PRESENT
+archive: docs/teambrain/evidence/20260502T000000Z-day3-release/failures.md PRESENT
+archive: docs/teambrain/evidence/20260502T000000Z-day3-release/judge-summary.json PRESENT
+
+RESULT recipe_id=VERIFY-TBRAIN-003 run_id=20260502T000000Z-day3-release exit_code=0 anchor_hits=27 canon_ok=12/12 archive_present=6/6
+```
+
+Pre-archive negative case captured at `.judge/20260502T000000Z-day3-release/pre-archive-stdout.txt`:
+
+```
+RESULT recipe_id=VERIFY-TBRAIN-003 run_id=20260502T000000Z-day3-release exit_code=2 anchor_hits=27 canon_ok=12/12 archive_present=0/6
+```

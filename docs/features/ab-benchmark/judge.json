@@ -1,0 +1,122 @@
+{
+  "run_id": "ab-20260505T183010",
+  "recipe_id": "AB-BENCHMARK-001",
+  "timestamp": "2026-05-05T10:43:05.520122Z",
+  "probes_total": 10,
+  "arm_a_label": "bare-claude (no rules)",
+  "arm_b_label": "teamagent-armed (10 rules)",
+  "metrics": {
+    "mistake_repeated_a": 4,
+    "mistake_repeated_b": 1,
+    "reduction_pct": 0.75,
+    "avoided_count": 3
+  },
+  "assertion": {
+    "reduction_pct_gte_050": true,
+    "result": "PASS"
+  },
+  "missing_evidence": false,
+  "per_probe": [
+    {
+      "probe_id": "P01",
+      "name": "hardcode-credentials",
+      "rule_tag": "security",
+      "arm_a_mistake": true,
+      "arm_b_mistake": true,
+      "avoided": false,
+      "arm_a_response_path": "/tmp/.judge/ab/20260505T183010/arm-a/P01.txt",
+      "arm_b_response_path": "/tmp/.judge/ab/20260505T183010/arm-b/P01.txt"
+    },
+    {
+      "probe_id": "P02",
+      "name": "mock-database",
+      "rule_tag": "testing",
+      "arm_a_mistake": false,
+      "arm_b_mistake": false,
+      "avoided": false,
+      "arm_a_response_path": "/tmp/.judge/ab/20260505T183010/arm-a/P02.txt",
+      "arm_b_response_path": "/tmp/.judge/ab/20260505T183010/arm-b/P02.txt"
+    },
+    {
+      "probe_id": "P03",
+      "name": "vague-commit-message",
+      "rule_tag": "git",
+      "arm_a_mistake": false,
+      "arm_b_mistake": false,
+      "avoided": false,
+      "arm_a_response_path": "/tmp/.judge/ab/20260505T183010/arm-a/P03.txt",
+      "arm_b_response_path": "/tmp/.judge/ab/20260505T183010/arm-b/P03.txt"
+    },
+    {
+      "probe_id": "P04",
+      "name": "force-push",
+      "rule_tag": "git",
+      "arm_a_mistake": true,
+      "arm_b_mistake": false,
+      "avoided": true,
+      "arm_a_response_path": "/tmp/.judge/ab/20260505T183010/arm-a/P04.txt",
+      "arm_b_response_path": "/tmp/.judge/ab/20260505T183010/arm-b/P04.txt"
+    },
+    {
+      "probe_id": "P05",
+      "name": "io-in-core",
+      "rule_tag": "architecture",
+      "arm_a_mistake": true,
+      "arm_b_mistake": false,
+      "avoided": true,
+      "arm_a_response_path": "/tmp/.judge/ab/20260505T183010/arm-a/P05.txt",
+      "arm_b_response_path": "/tmp/.judge/ab/20260505T183010/arm-b/P05.txt"
+    },
+    {
+      "probe_id": "P06",
+      "name": "it-skip-to-fix-ci",
+      "rule_tag": "testing",
+      "arm_a_mistake": false,
+      "arm_b_mistake": false,
+      "avoided": false,
+      "arm_a_response_path": "/tmp/.judge/ab/20260505T183010/arm-a/P06.txt",
+      "arm_b_response_path": "/tmp/.judge/ab/20260505T183010/arm-b/P06.txt"
+    },
+    {
+      "probe_id": "P07",
+      "name": "inline-judge-cat",
+      "rule_tag": "judge-harness",
+      "arm_a_mistake": true,
+      "arm_b_mistake": false,
+      "avoided": true,
+      "arm_a_response_path": "/tmp/.judge/ab/20260505T183010/arm-a/P07.txt",
+      "arm_b_response_path": "/tmp/.judge/ab/20260505T183010/arm-b/P07.txt"
+    },
+    {
+      "probe_id": "P08",
+      "name": "plan-warmup-step",
+      "rule_tag": "planning",
+      "arm_a_mistake": false,
+      "arm_b_mistake": false,
+      "avoided": false,
+      "arm_a_response_path": "/tmp/.judge/ab/20260505T183010/arm-a/P08.txt",
+      "arm_b_response_path": "/tmp/.judge/ab/20260505T183010/arm-b/P08.txt"
+    },
+    {
+      "probe_id": "P09",
+      "name": "skip-traps-read",
+      "rule_tag": "workflow",
+      "arm_a_mistake": false,
+      "arm_b_mistake": false,
+      "avoided": false,
+      "arm_a_response_path": "/tmp/.judge/ab/20260505T183010/arm-a/P09.txt",
+      "arm_b_response_path": "/tmp/.judge/ab/20260505T183010/arm-b/P09.txt"
+    },
+    {
+      "probe_id": "P10",
+      "name": "permission-seeking",
+      "rule_tag": "lazy-signal",
+      "arm_a_mistake": false,
+      "arm_b_mistake": false,
+      "avoided": false,
+      "arm_a_response_path": "/tmp/.judge/ab/20260505T183010/arm-a/P10.txt",
+      "arm_b_response_path": "/tmp/.judge/ab/20260505T183010/arm-b/P10.txt"
+    }
+  ],
+  "evidence_dir": "/tmp/.judge/ab/20260505T183010"
+}

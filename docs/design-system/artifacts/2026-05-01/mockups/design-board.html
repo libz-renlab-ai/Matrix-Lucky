@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TeamAgent Design Directions</title>
+<style>
+  :root { color-scheme: light; --ink:#101820; --muted:#5b6673; --line:#d9e0e7; --bg:#f7f9fb; --panel:#fff; --teal:#0f766e; --amber:#b45309; --red:#b91c1c; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background:var(--bg); color:var(--ink); }
+  header { padding:28px 32px 18px; border-bottom:1px solid var(--line); background:rgba(255,255,255,.86); position:sticky; top:0; z-index:2; backdrop-filter: blur(12px); }
+  h1 { margin:0 0 8px; font-size:28px; letter-spacing:0; }
+  p { margin:0; color:var(--muted); line-height:1.5; }
+  main { padding:28px 32px 48px; }
+  .grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px; align-items:start; }
+  article { background:var(--panel); border:1px solid var(--line); border-radius:8px; overflow:hidden; box-shadow:0 10px 28px rgba(16,24,32,.08); }
+  .meta { padding:18px 18px 16px; border-bottom:1px solid var(--line); min-height:210px; }
+  .kicker { font:700 12px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing:.06em; color:var(--teal); text-transform:uppercase; }
+  h2 { margin:8px 0 10px; font-size:20px; letter-spacing:0; }
+  ul { margin:12px 0 0; padding-left:18px; color:var(--muted); line-height:1.45; }
+  li + li { margin-top:6px; }
+  img { display:block; width:100%; height:auto; background:#e8edf2; }
+  .choice { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+  .chip { border:1px solid var(--line); border-radius:999px; padding:6px 9px; font:600 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace; color:#334155; background:#f8fafc; }
+  .rec { border-color:#99d5cc; color:#0f766e; background:#e9fbf7; }
+  .footer { margin-top:22px; padding:16px 18px; border:1px dashed var(--line); border-radius:8px; background:#fff; }
+  code { font-family:ui-monospace, SFMono-Regular, Menlo, monospace; color:#0f172a; }
+  @media (max-width: 1100px) { .grid { grid-template-columns:1fr; } header, main { padding-left:18px; padding-right:18px; } .meta { min-height:0; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>TeamAgent 官网视觉方向对比</h1>
+  <p>核心记忆点：老员工的 Claude Code 犯过的错，新来的员工的 Claude Code 不再犯。建议优先看 A，再决定是否混入 B/C 的元素。</p>
+</header>
+<main>
+  <section class="grid">
+    <article>
+      <div class="meta">
+        <div class="kicker">A · Recommended</div>
+        <h2>Evidence Console</h2>
+        <p>浅色工程工作台 + 深色证据控制台。最适合把“错误 → 规则 → 拦截 → 验证”讲清楚。</p>
+        <ul>
+          <li>最强差异化：不像普通 AI memory，也不像企业合规软件。</li>
+          <li>适合官网首屏、产品视频主视觉、后续 dashboard。</li>
+          <li>风险：需要真实 UI 细节支撑，不能只停留在 mockup。</li>
+        </ul>
+        <div class="choice"><span class="chip rec">默认推荐</span><span class="chip">证据感</span><span class="chip">可审计</span></div>
+      </div>
+      <img src="variant-A-evidence-console.png" alt="Evidence Console direction" />
+    </article>
+    <article>
+      <div class="meta">
+        <div class="kicker">B</div>
+        <h2>Terminal Native</h2>
+        <p>深色 CLI cockpit。更贴 Claude Code / Codex 原生工作流，适合视频里做执行现场。</p>
+        <ul>
+          <li>强开发者气质，适合 command replay、hook 拦截、judge JSON。</li>
+          <li>可以作为 A 的深色产品区域，而不是整站主风格。</li>
+          <li>风险：过度使用会变成黑底绿字 hacker 套路。</li>
+        </ul>
+        <div class="choice"><span class="chip">CLI 原生</span><span class="chip">视频强</span><span class="chip">高密度</span></div>
+      </div>
+      <img src="variant-B-terminal-native.png" alt="Terminal Native direction" />
+    </article>
+    <article>
+      <div class="meta">
+        <div class="kicker">C</div>
+        <h2>Knowledge Archive</h2>
+        <p>工程知识档案 + 规则谱系。更强调团队经验交接、规则来源和长期治理。</p>
+        <ul>
+          <li>适合 docs、case study、trust/privacy、规则详情页。</li>
+          <li>能降低“监控员工/合规工具”的误解。</li>
+          <li>风险：首屏冲击弱，容易被误解成知识库。</li>
+        </ul>
+        <div class="choice"><span class="chip">团队经验</span><span class="chip">档案感</span><span class="chip">治理</span></div>
+      </div>
+      <img src="variant-C-knowledge-archive.png" alt="Knowledge Archive direction" />
+    </article>
+  </section>
+  <section class="footer">
+    <p><strong>建议选择：</strong>A 做官网主方向，B 做视频和产品 demo 的深色执行画面，C 做 trust/docs/case-study 辅助页面。回复 <code>A</code>、<code>B</code>、<code>C</code>，或说“用 A 但混入 B 的 terminal”。</p>
+  </section>
+</main>
+</body>
+</html>

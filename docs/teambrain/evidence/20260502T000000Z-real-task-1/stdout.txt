@@ -1,0 +1,44 @@
+=== Pre-commit verification: 4 unstaged docs/teambrain/ precision changes ===
+
+--- TASK_TEMPLATE.md run_id stability anchor ---
+152:`run_id` must stay stable for the run: use ISO timestamp plus short slug, and never append or replace it with a commit SHA. Record commit SHA only in `docs/teambrain/evidence/<run_id>/INDEX.md`.
+
+--- VERIFY_TEMPLATE.md task_title field anchor ---
+63:TASK_TITLE="${2:-${RECIPE_ID}}"
+89:  "task_title": "${TASK_TITLE}",
+95:  "archive_dir": "${ARCHIVE_DIR}",
+122:  "archive_dir": "${ARCHIVE_DIR}",
+132:- task_title: ${TASK_TITLE}
+
+--- VERIFY_TEMPLATE.md judge prompt schema anchor ---
+155:Do NOT rerun any commands. Output JSON with recipe_id, run_id, conclusion, and notes.
+
+--- agent_rules/claude.md AP-2 anchor (metrics + missing_evidence, no /status) ---
+113:**Right:** Read `.judge/<run_id>/judge.json`, check VERIFY_TEMPLATE schema fields plus `metrics` and `missing_evidence`, then state verdict with the run_id.
+167:| `VERIFY-CLAUDE-001` | AP-2: reads `.judge/<run_id>/judge.json`; judges via VERIFY_TEMPLATE schema, metrics, and `missing_evidence`; rejects verbal verdicts |
+
+--- evidence/README.md run_id stability ---
+32:Use a stable `run_id`, preferably `YYYYMMDDTHHMMSSZ-<task-slug>`. Never append or replace it with a commit SHA; after commit, mention the short SHA only in `INDEX.md`.
+
+=== STRUCTURE.md path existence sweep ===
+OK   docs/teambrain/README.md
+OK   docs/teambrain/STRUCTURE.md
+OK   docs/teambrain/TRAPS.md
+OK   docs/teambrain/TRAP_FORMAT.md
+OK   docs/teambrain/TASK_TEMPLATE.md
+OK   docs/teambrain/VERIFY_TEMPLATE.md
+OK   docs/teambrain/CONVERGENCE.md
+OK   docs/teambrain/agent_rules/claude.md
+OK   docs/teambrain/agent_rules/codex.md
+OK   docs/teambrain/convergence/first-pass-findings.md
+OK   docs/teambrain/convergence/history.md
+OK   docs/teambrain/evidence/README.md
+
+=== Diff stat ===
+ docs/teambrain/TASK_TEMPLATE.md      |  2 +-
+ docs/teambrain/VERIFY_TEMPLATE.md    | 14 ++++++--------
+ docs/teambrain/agent_rules/claude.md |  4 ++--
+ docs/teambrain/evidence/README.md    |  2 +-
+ 4 files changed, 10 insertions(+), 12 deletions(-)
+
+=== exit_code (intentional 0 since this is a verification capture) ===

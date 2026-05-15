@@ -1,0 +1,15 @@
+环境诊断 / Environment Check
+────────────────────────────────────────
+✅ node-version      v22.14.0  (需要 ≥ 22)
+❌ install-table-bundles  dist 缺失 install-table 引用的 bundle: bin-digital-twin-tap.cjs
+   → 运行: pnpm --filter teamagent build  （或重装 teamagent）
+✅ claude-code       2.1.139 (Claude Code)
+✅ sqlite-vec        加载成功
+✅ home-dir          C:\Users\tianhaoxuan\AppData\Local\Temp\ta-299-home-pos-JDerDA\.teamagent 可读写
+❌ knowledge-db      知识库未初始化
+   → 运行: teamagent init
+⏭  hook-registered   (knowledge.db 先修)
+⏭  hook-script       (knowledge.db 先修)
+✅ team-sharing      M5 viral-sync ready: gate-1 secret scan, gate-2 scope classifier, LWW+tombstone merge, m5-publish auto-commit, post-merge auto-pull
+
+2 项失败，2 项跳过。修复后重跑 teamagent doctor

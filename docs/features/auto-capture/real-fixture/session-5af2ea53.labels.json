@@ -1,0 +1,19 @@
+[
+  {"turn_index": 1, "user_text": "[Request interrupted by user]", "is_correction": true, "signal_type": "interrupt", "note": "User interrupted AI action mid-flight"},
+  {"turn_index": 42, "user_text": "Wait patiently and NEVER WORK in main sessions please", "is_correction": true, "signal_type": "explicit_directive_correction", "note": "User correcting AI behavior explicitly"},
+  {"turn_index": 9, "user_text": "please explain the current status please. use FASTPROBE to assign parrralle subagents to run deep resersach in each folders . use 8 FASTPROBE", "is_correction": false, "signal_type": "new_task", "note": "New instruction, not correcting prior AI output"},
+  {"turn_index": 64, "user_text": "assign a 9-th FASTPROBE to summary for me after everything is done", "is_correction": false, "signal_type": "new_task", "note": "Adding a new subtask, not correcting"},
+  {"turn_index": 75, "user_text": "what are day0 and day1 and day2 status please ?", "is_correction": false, "signal_type": "question", "note": "Status inquiry, not correction"},
+  {"turn_index": 86, "user_text": "okay build subagents to finish Day1 task please. use an opus to review. queue max 16 parrael of FASTPROBE. use a subagent with Opus in this session to review and spawn new FASTPROBE", "is_correction": false, "signal_type": "new_task", "note": "Continuing with next task"},
+  {"turn_index": 94, "user_text": "Continue from where you left off.", "is_correction": false, "signal_type": "continuation", "note": "Asking to resume, not correcting"},
+  {"turn_index": 96, "user_text": "go on task2", "is_correction": false, "signal_type": "continuation", "note": "Advancing task sequence"},
+  {"turn_index": 97, "user_text": "go on day2", "is_correction": false, "signal_type": "continuation", "note": "Advancing task sequence"},
+  {"turn_index": 109, "user_text": "go on", "is_correction": false, "signal_type": "continuation", "note": "Advancing task sequence"},
+  {"turn_index": 128, "user_text": "[Request interrupted by user for tool use]", "is_correction": true, "signal_type": "interrupt", "note": "User interrupted AI tool call"},
+  {"turn_index": 163, "user_text": "make a PR please", "is_correction": false, "signal_type": "new_task", "note": "New subtask request"},
+  {"turn_index": 166, "user_text": "[Request interrupted by user]", "is_correction": true, "signal_type": "interrupt", "note": "User interrupted AI mid-action"},
+  {"turn_index": 220, "user_text": "can we make PR now ?", "is_correction": false, "signal_type": "question", "note": "Inquiry/request, not correction of AI error"},
+  {"turn_index": 224, "user_text": "push the branch and open a PR to land it into main.", "is_correction": false, "signal_type": "new_task", "note": "New task after the PR inquiry"},
+  {"turn_index": 225, "user_text": "[Request interrupted by user]", "is_correction": true, "signal_type": "interrupt", "note": "User interrupted again"},
+  {"turn_index": 230, "user_text": "merge please", "is_correction": false, "signal_type": "new_task", "note": "Follow-up task, not correction"}
+]

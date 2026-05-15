@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "canary-skill-registration",
+  "description": "Result of querying the runtime's in-memory skill registry for a skill named 'canary'. This schema deliberately avoids fields that are commonly paraphrased by the model, and avoids fields that require reading SKILL.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "registered",
+    "name",
+    "status"
+  ],
+  "properties": {
+    "registered": {
+      "type": "boolean",
+      "description": "True iff a skill with the exact name 'canary' is registered in the runtime's skill list."
+    },
+    "name": {
+      "type": ["string", "null"],
+      "description": "The registered skill name verbatim, or null when not registered."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["found", "missing"],
+      "description": "found when registered is true, otherwise missing."
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "registered": { "const": true } },
+        "required": ["registered"]
+      },
+      "then": {
+        "properties": {
+          "name": { "const": "canary" },
+          "status": { "const": "found" }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "registered": { "const": false } },
+        "required": ["registered"]
+      },
+      "then": {
+        "properties": {
+          "name": { "type": "null" },
+          "status": { "const": "missing" }
+        }
+      }
+    }
+  ]
+}

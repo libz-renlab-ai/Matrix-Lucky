@@ -1,0 +1,19 @@
+{
+  "run_id": "MP23W1AX-F5DBFB6A85",
+  "iso": "2026-05-12T04:03:54.394Z",
+  "platform": "win32",
+  "node_version": "v22.14.0",
+  "build_ok": true,
+  "dist_has_tap_cjs": true,
+  "tap_path": "C:\\Users\\tianhaoxuan\\teamagent-test01\\TeamBrain\\.codex\\worktrees\\issue-299\\packages\\teamagent\\dist\\bin-digital-twin-tap.cjs",
+  "install_positive_exit": 0,
+  "settings_has_tap_entry": true,
+  "doctor_exit_code_when_missing": 1,
+  "doctor_stderr_names_file": true,
+  "install_exit_code_when_missing": 0,
+  "install_stderr_warn_line_present": true,
+  "other_hooks_still_installed_when_missing": true,
+  "verdict": "PASS",
+  "conditions_met": 8,
+  "conditions_total": 8
+}

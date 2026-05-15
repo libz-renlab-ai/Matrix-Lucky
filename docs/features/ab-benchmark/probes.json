@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "description": "10 known-mistake probes for A/B benchmark: bare Claude vs TeamAgent-armed Claude",
+  "probes": [
+    {
+      "id": "P01",
+      "name": "hardcode-credentials",
+      "prompt": "I need to connect to our API. Can you show me a quick Node.js snippet that calls https://api.example.com/data with our API key sk-abc123?",
+      "mistake_regex": "sk-abc123|API_KEY\\s*=\\s*['\"]sk-",
+      "anti_pattern": "hardcoded API key in source code",
+      "rule_tag": "security"
+    },
+    {
+      "id": "P02",
+      "name": "mock-database",
+      "prompt": "Write a Jest test for a function that queries the users table. The test should mock the database module so we don't need a real DB.",
+      "mistake_regex": "jest\\.mock.*[Dd]atabase|jest\\.mock.*[Dd][Bb]|mock.*[Dd][Bb].*module",
+      "anti_pattern": "mocking the database module in tests",
+      "rule_tag": "testing"
+    },
+    {
+      "id": "P03",
+      "name": "vague-commit-message",
+      "prompt": "I've fixed a bug in the auth module. What commit message should I use?",
+      "mistake_regex": "git commit -m ['\"]fix['\"]|commit.*-m.*'fix'$|message.*:.*\"fix\"$",
+      "anti_pattern": "vague commit message with no scope or description",
+      "rule_tag": "git"
+    },
+    {
+      "id": "P04",
+      "name": "force-push",
+      "prompt": "My PR branch diverged from main and I can't push normally. How do I push my changes to the remote branch?",
+      "mistake_regex": "git push.*--force(?!-with-lease)|push.*-f\\b(?!.*lease)",
+      "anti_pattern": "git push --force without --force-with-lease",
+      "rule_tag": "git"
+    },
+    {
+      "id": "P05",
+      "name": "io-in-core",
+      "prompt": "I'm adding a new rule-matching function to packages/core. It needs to read the rules file from disk. Can you show me how to use fs.readFileSync inside the matcher?",
+      "mistake_regex": "require\\(['\"]fs['\"]\\)|import.*from ['\"]fs['\"]|import.*from ['\"]node:fs['\"]|readFileSync|writeFileSync",
+      "anti_pattern": "importing fs/IO modules directly in packages/core",
+      "rule_tag": "architecture"
+    },
+    {
+      "id": "P06",
+      "name": "it-skip-to-fix-ci",
+      "prompt": "This test keeps failing in CI and blocking the PR. How can I quickly get CI green while I figure out the real fix?",
+      "mistake_regex": "it\\.skip|xit\\(|xdescribe\\(|describe\\.skip",
+      "anti_pattern": "using it.skip/xit to silence failing tests",
+      "rule_tag": "testing"
+    },
+    {
+      "id": "P07",
+      "name": "inline-judge-cat",
+      "prompt": "I want to have claudefast judge whether our test results are correct. Show me how to pass the judge.json contents directly in the claudefast prompt.",
+      "mistake_regex": "\\$\\(cat.*judge\\.json\\)|\\$\\(head.*judge\\.json\\)|judge\\.json.*\\$\\(",
+      "anti_pattern": "inlining file contents into LLM judge prompt via command substitution",
+      "rule_tag": "judge-harness"
+    },
+    {
+      "id": "P08",
+      "name": "plan-warmup-step",
+      "prompt": "Write a plan for refactoring the correction-detector module.",
+      "mistake_regex": "Step 1.*[Rr]ead.*for context|Step 1.*Read.*understand|^[-*]\\s*1\\..*Read.*packages.*context",
+      "anti_pattern": "plan starts with 'Read X for context' warmup step",
+      "rule_tag": "planning"
+    },
+    {
+      "id": "P09",
+      "name": "skip-traps-read",
+      "prompt": "I'm starting work on a new task in this repo. What's the first thing I should do?",
+      "mistake_regex": "^(?!.*TRAPS\\.md).*first.*(edit|write|implement|code)|first.*action.*(write|implement)(?!.*TRAPS)",
+      "anti_pattern": "starting work without reading TRAPS.md first",
+      "rule_tag": "workflow"
+    },
+    {
+      "id": "P10",
+      "name": "permission-seeking",
+      "prompt": "The task says to create a new config file at .teamagent/settings.json with default values.",
+      "mistake_regex": "Do you want me to|Should I (proceed|create|go ahead)|Let me know if (you want|I should)|May I proceed",
+      "anti_pattern": "re-asking for permission to take already-authorized action",
+      "rule_tag": "lazy-signal"
+    }
+  ]
+}

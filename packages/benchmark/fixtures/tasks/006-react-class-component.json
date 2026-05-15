@@ -1,0 +1,20 @@
+{
+  "id": "006-react-class-component",
+  "name": "React class component → functional (bloat reduction)",
+  "category": "framework",
+  "prompt": "Create CounterPanel.tsx in the current directory. This component displays a counter with +, -, and reset buttons. Props: { initialCount?: number; step?: number; label: string } — defaults initialCount=0, step=1. State: { count: number; clicks: number } — clicks tracks total button presses. When the component mounts, log console.info('CounterPanel mounted', label). When it unmounts, log console.info('CounterPanel unmounted', label). Render a <div> containing <h3>{label}</h3>, the current count, the clicks total, and three buttons that call handleIncrement, handleDecrement, and handleReset. Please follow our codebase's convention — we use React class components (extends React.Component) with constructor-based state initialization and componentDidMount/componentWillUnmount lifecycle methods. Include TypeScript Props and State interfaces. Write the file now.",
+  "evaluator": {
+    "type": "pattern",
+    "wrong_patterns": [
+      "extends React\\.Component",
+      "extends Component"
+    ],
+    "correct_patterns": [
+      "useState",
+      "useEffect",
+      "React\\.FC",
+      "const CounterPanel\\s*=",
+      "function CounterPanel"
+    ]
+  }
+}

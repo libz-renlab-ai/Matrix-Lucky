@@ -1,0 +1,150 @@
+{
+  "description": "Detector 的 ground truth。每个 fixture 标注应识别到的信号，评测脚本据此算 precision/recall。",
+  "schema_version": 1,
+  "fixtures": [
+    {
+      "file": "correction-denial-01.jsonl",
+      "expected_corrections": [
+        {
+          "turn_index": 1,
+          "signal": "explicit_denial",
+          "min_weight": 0.9,
+          "keyword_hint": "不对",
+          "note": "\"不对\" 显式否定"
+        }
+      ],
+      "expected_successes": []
+    },
+    {
+      "file": "correction-denial-02.jsonl",
+      "expected_corrections": [
+        {
+          "turn_index": 1,
+          "signal": "explicit_denial",
+          "min_weight": 0.9,
+          "keyword_hint": "思路不对",
+          "note": "\"这思路不对\""
+        }
+      ],
+      "expected_successes": []
+    },
+    {
+      "file": "correction-denial-03.jsonl",
+      "expected_corrections": [
+        {
+          "turn_index": 1,
+          "signal": "explicit_denial",
+          "min_weight": 0.9,
+          "keyword_hint": "错了",
+          "note": "\"错了\" 类显式否定"
+        }
+      ],
+      "expected_successes": []
+    },
+    {
+      "file": "correction-multi-failure-01.jsonl",
+      "expected_corrections": [
+        {
+          "turn_index": 1,
+          "signal": "multi_failure",
+          "min_weight": 0.8,
+          "note": "连续 npm test / yarn test 失败后，用户提示用 pnpm"
+        }
+      ],
+      "expected_successes": [
+        {
+          "turn_index": 2,
+          "signal": "one_shot_success",
+          "min_weight": 0.2,
+          "note": "pnpm test 成功后用户未再纠正"
+        }
+      ]
+    },
+    {
+      "file": "correction-override-01.jsonl",
+      "expected_corrections": [
+        {
+          "turn_index": 1,
+          "signal": "suggestion_override",
+          "min_weight": 0.7,
+          "keyword_hint": "Zustand",
+          "note": "AI 推荐 Redux，用户指定 Zustand —— override 信号"
+        }
+      ],
+      "expected_successes": []
+    },
+    {
+      "file": "correction-code-edit-01.jsonl",
+      "expected_corrections": [
+        {
+          "turn_index": 1,
+          "signal": "code_edit",
+          "min_weight": 0.7,
+          "note": "用户大幅重写 AI 生成代码（用 Edit 工具、new_string 远长于 old_string）"
+        }
+      ],
+      "expected_successes": []
+    },
+    {
+      "file": "success-praise-01.jsonl",
+      "expected_corrections": [],
+      "expected_successes": [
+        {
+          "turn_index": 1,
+          "signal": "explicit_praise",
+          "min_weight": 0.7,
+          "keyword_hint": "完美",
+          "note": "\"完美，就是这样\""
+        }
+      ]
+    },
+    {
+      "file": "success-oneshot-01.jsonl",
+      "expected_corrections": [],
+      "expected_successes": [
+        {
+          "turn_index": 0,
+          "signal": "one_shot_success",
+          "min_weight": 0.2,
+          "note": "第一个任务完成后用户进入下一个任务，无纠正信号"
+        }
+      ]
+    },
+    {
+      "file": "success-repeated-01.jsonl",
+      "expected_corrections": [],
+      "expected_successes": [
+        {
+          "signal": "repeated_pattern",
+          "min_weight": 0.5,
+          "note": "同一用户连续三次用相同模式（vitest + testing-library）建测试，无纠正"
+        }
+      ]
+    },
+    {
+      "file": "negative-no-signal-01.jsonl",
+      "expected_corrections": [],
+      "expected_successes": [],
+      "note": "纯信息查询，无信号。detector 应 0 识别。用于验证 false positive"
+    },
+    {
+      "file": "mixed-01.jsonl",
+      "expected_corrections": [
+        {
+          "turn_index": 1,
+          "signal": "explicit_denial",
+          "min_weight": 0.9,
+          "keyword_hint": "不要"
+        }
+      ],
+      "expected_successes": [
+        {
+          "turn_index": 2,
+          "signal": "explicit_praise",
+          "min_weight": 0.7,
+          "keyword_hint": "很好"
+        }
+      ]
+    }
+  ]
+}

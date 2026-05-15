@@ -1,0 +1,10 @@
+{
+  "totalJsonEvents": 329,
+  "streamJsonObserved": true,
+  "userPromptSubmitStringObserved": true,
+  "recordingMemoryStringObserved": true,
+  "sourceReferenceObserved": true,
+  "fullTranscriptInjected": false,
+  "finalMarkerObserved": true,
+  "pass": true
+}

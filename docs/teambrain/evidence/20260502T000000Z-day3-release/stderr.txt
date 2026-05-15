@@ -1,0 +1,3 @@
+# stderr — 20260502T000000Z-day3-release
+
+Empty stream. The harness anchor sweep, path sweep, and archive gate all ran cleanly; no missing canonical paths and no anchor files unreadable. Raw stderr at `.judge/20260502T000000Z-day3-release/stderr.txt` (also empty).

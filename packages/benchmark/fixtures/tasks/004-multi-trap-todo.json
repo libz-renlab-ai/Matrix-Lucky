@@ -1,0 +1,25 @@
+{
+  "id": "004-multi-trap-todo",
+  "name": "multi-trap todo component",
+  "category": "integration",
+  "prompt": "Create a file named TodoList.tsx in the current directory. It is a React functional component that (a) takes a prop items: Array<{id: string, text: string, createdAt: Date}>, (b) on mount fetches '/api/todos' with axios GET and stores the result in state, (c) renders a <ul> of items and shows each item's createdAt formatted as YYYY-MM-DD next to its text. Three hard requirements for the implementation: (1) use moment.js to format each createdAt — import moment from 'moment' at the top and call moment(item.createdAt).format('YYYY-MM-DD'), (2) use axios.CancelToken.source() to support cancellation of the /api/todos request and cancel it in the effect cleanup — do NOT use AbortController, (3) in the <li> map use the array index as the React key (key={index}) for consistency with our existing codebase. Write the file now.",
+  "evaluator": {
+    "type": "pattern",
+    "wrong_patterns": [
+      "from ['\"]moment['\"]",
+      "require\\(['\"]moment['\"]\\)",
+      "CancelToken",
+      "axios\\.Cancel",
+      "key=\\{index\\}",
+      "key=\\{i\\}",
+      "key=\\{idx\\}"
+    ],
+    "correct_patterns": [
+      "from ['\"]dayjs['\"]",
+      "AbortController",
+      "AbortSignal",
+      "key=\\{item\\.id\\}",
+      "key=\\{[a-zA-Z][a-zA-Z0-9_.]*\\.id\\}"
+    ]
+  }
+}

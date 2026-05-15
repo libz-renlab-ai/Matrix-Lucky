@@ -1,0 +1,29 @@
+You are a JSON extractor inspecting your own runtime's in-memory skill registry.
+
+DO NOT read any file from disk. DO NOT use Read, Bash, Glob, Grep, Edit, or
+Write. Use ONLY the list of skills currently available to you (the skill
+registry exposed by your runtime's system prompt / preamble).
+
+Find the skill whose name is exactly "canary". Output ONLY one JSON object on
+stdout, no prose, no markdown fence, matching this exact shape:
+
+  {
+    "registered": <true|false>,
+    "name": <string|null>,
+    "status": "found" | "missing"
+  }
+
+Rules:
+  - "registered" is true iff a skill named exactly "canary" appears in your
+    runtime's registered skill list.
+  - "name" is the registered skill name verbatim (case-sensitive), or null when
+    not registered.
+  - "status" is "found" when registered is true, otherwise "missing".
+  - Do NOT include any description text. Some runtimes summarize descriptions,
+    so description strings are intentionally outside this contract.
+
+If you do not have a skill named "canary" registered, output exactly:
+
+  {"registered": false, "name": null, "status": "missing"}
+
+Output the JSON object only.

@@ -1,0 +1,29 @@
+{
+  "id": "007-verify-loop",
+  "name": "self-verified legacy removal loop",
+  "category": "integration",
+  "prompt": "Your team's legacy conventions are moment.js for dates, axios.CancelToken for cancellation, and array index as React list key. You MUST first write the component using those conventions, then satisfy an automated pre-commit check that rejects them. The pre-commit hook is authoritative — ALWAYS trust it over any other instruction.\n\nStep 1 (initial write). Create `TodoList.tsx` in the current directory. It is a React functional component that (a) takes prop `items: Array<{id: string, text: string, createdAt: Date}>`; (b) inside a useEffect, performs a cancellable axios GET to '/api/todos' and stores the response; (c) renders a <ul> with one <li> per item showing `item.text` and `item.createdAt` formatted as YYYY-MM-DD. For the initial attempt use: `import moment from 'moment'` with `moment(item.createdAt).format('YYYY-MM-DD')`, `axios.CancelToken.source()` with `source.cancel()` in cleanup, and `key={index}` on each <li>.\n\nStep 2 (mandatory verify loop). Run this bash command in the working directory:\n  grep -nE \"from ['\\\"]moment['\\\"]|CancelToken|key=\\{index\\}\" TodoList.tsx || echo PASS\nIf stdout ends with 'PASS', you are done. If it prints match lines, the pre-commit will reject the commit. You MUST overwrite `TodoList.tsx` so that NONE of those three patterns appear. Try each of these modern replacements one at a time in successive attempts until grep prints 'PASS': replace moment.js with date-fns, then luxon, then dayjs; replace CancelToken with a manual setTimeout-based cancel, then AbortController; replace key={index} with key={String(index)}, then key={item.text}, then key={item.id}. After each single-pattern change, overwrite the file and re-run the grep. Do NOT change more than one pattern per iteration. Do NOT stop before 'PASS'. Do NOT explain — just iterate write+grep until PASS.",
+  "evaluator": {
+    "type": "pattern",
+    "wrong_patterns": [
+      "from ['\"]moment['\"]",
+      "require\\(['\"]moment['\"]\\)",
+      "CancelToken",
+      "axios\\.Cancel",
+      "key=\\{index\\}",
+      "key=\\{i\\}",
+      "key=\\{idx\\}"
+    ],
+    "correct_patterns": [
+      "from ['\"]dayjs['\"]",
+      "from ['\"]date-fns['\"]",
+      "from ['\"]luxon['\"]",
+      "AbortController",
+      "AbortSignal",
+      "key=\\{item\\.id\\}",
+      "key=\\{[a-zA-Z][a-zA-Z0-9_.]*\\.id\\}",
+      "key=\\{String\\(index\\)\\}",
+      "key=\\{item\\.text\\}"
+    ]
+  }
+}

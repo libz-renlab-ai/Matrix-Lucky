@@ -1,0 +1,3 @@
+{"type":"user","uuid":"u1","parentUuid":null,"timestamp":"2026-04-14T14:00:00Z","sessionId":"fix-praise-01","message":{"role":"user","content":"帮我加一个首字母大写的工具函数"}}
+{"type":"assistant","uuid":"a1","parentUuid":"u1","timestamp":"2026-04-14T14:00:05Z","sessionId":"fix-praise-01","message":{"role":"assistant","content":[{"type":"text","text":"简单的 capitalize"},{"type":"tool_use","id":"t1","name":"Write","input":{"file_path":"src/str.ts","content":"export const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);"}}]}}
+{"type":"user","uuid":"u2","parentUuid":"a1","timestamp":"2026-04-14T14:00:15Z","sessionId":"fix-praise-01","message":{"role":"user","content":"完美，就是这样"}}

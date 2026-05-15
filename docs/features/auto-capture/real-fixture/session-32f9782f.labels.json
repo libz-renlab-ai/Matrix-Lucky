@@ -1,0 +1,19 @@
+[
+  {"turn_index": 0, "user_text": "please pull from https://github.com/libz-renlab-ai/TeamBrain/tree/dev-codex please", "is_correction": false, "signal_type": "new_task", "note": "Initial task"},
+  {"turn_index": 23, "user_text": "in this chat , you will NEVER work in main session and you will ONLY spawn sonnet subagents to do tasks in agent-teams. Each agent teams have 3-7 teammates", "is_correction": true, "signal_type": "explicit_behavioral_correction", "note": "Explicit constraint correction — NEVER/ONLY language"},
+  {"turn_index": 24, "user_text": "[Request interrupted by user]", "is_correction": true, "signal_type": "interrupt", "note": "User interrupted"},
+  {"turn_index": 25, "user_text": "please list all product features , including not veirified and not implmented please.", "is_correction": false, "signal_type": "new_task", "note": "New task request"},
+  {"turn_index": 100, "user_text": "ask reporter to write to update docs until !claudefast -p \"list all product features\" return all good answers  and never doc hack or use canned answer", "is_correction": true, "signal_type": "prohibition_correction", "note": "User correcting with 'never doc hack' — prohibiting wrong approach"},
+  {"turn_index": 105, "user_text": "go on", "is_correction": false, "signal_type": "continuation", "note": "Continuation"},
+  {"turn_index": 115, "user_text": "wait fro feature-reporter. then we assign new teammates each to develope a verify task for unverified tasks and develope a feature task for unimplemented tasks", "is_correction": false, "signal_type": "new_plan", "note": "New plan, not correcting"},
+  {"turn_index": 118, "user_text": "good ! please ONLY assign sonnet subagents for following implementation tasks and assign !claudefast for doc updating tasks please. say yes when you understand", "is_correction": true, "signal_type": "constraint_correction", "note": "ONLY constraint -- correcting default behavior"},
+  {"turn_index": 162, "user_text": "Continue from where you left off.", "is_correction": false, "signal_type": "continuation", "note": "Resume after interruption"},
+  {"turn_index": 164, "user_text": "i was stopped. please go on this please", "is_correction": false, "signal_type": "continuation", "note": "Asking to resume"},
+  {"turn_index": 244, "user_text": "status ?", "is_correction": false, "signal_type": "question", "note": "Status check"},
+  {"turn_index": 246, "user_text": "answer in chinese and go on . please", "is_correction": true, "signal_type": "language_correction", "note": "Correcting AI language (answer in chinese)"},
+  {"turn_index": 248, "user_text": "i see all subagents are idle. please check subagent status please", "is_correction": false, "signal_type": "new_task", "note": "Status investigation, not correction"},
+  {"turn_index": 281, "user_text": "commits and go on", "is_correction": false, "signal_type": "task_advance", "note": "Advancing work"},
+  {"turn_index": 300, "user_text": "go on", "is_correction": false, "signal_type": "continuation", "note": "Continuation"},
+  {"turn_index": 340, "user_text": "[Request interrupted by user]", "is_correction": true, "signal_type": "interrupt", "note": "User interrupted"},
+  {"turn_index": 344, "user_text": "NOTE : NEVER work in main agent please", "is_correction": true, "signal_type": "explicit_behavioral_correction", "note": "NEVER directive — explicit correction of AI behavior"}
+]

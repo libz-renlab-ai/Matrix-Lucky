@@ -1,0 +1,4 @@
+{"type":"user","uuid":"u1","parentUuid":null,"timestamp":"2026-04-14T12:00:00Z","sessionId":"fix-override-01","message":{"role":"user","content":"给这个 React 应用加状态管理"}}
+{"type":"assistant","uuid":"a1","parentUuid":"u1","timestamp":"2026-04-14T12:00:10Z","sessionId":"fix-override-01","message":{"role":"assistant","content":[{"type":"text","text":"我推荐用 Redux Toolkit，这是目前社区主流方案，功能最完整。我来装一下"},{"type":"tool_use","id":"t1","name":"Bash","input":{"command":"pnpm add @reduxjs/toolkit react-redux"}}]}}
+{"type":"user","uuid":"u2","parentUuid":"a1","timestamp":"2026-04-14T12:00:30Z","sessionId":"fix-override-01","message":{"role":"user","content":"用 Zustand 吧，更轻量"}}
+{"type":"assistant","uuid":"a2","parentUuid":"u2","timestamp":"2026-04-14T12:00:35Z","sessionId":"fix-override-01","message":{"role":"assistant","content":[{"type":"text","text":"好，改用 Zustand"},{"type":"tool_use","id":"t2","name":"Bash","input":{"command":"pnpm add zustand"}}]}}

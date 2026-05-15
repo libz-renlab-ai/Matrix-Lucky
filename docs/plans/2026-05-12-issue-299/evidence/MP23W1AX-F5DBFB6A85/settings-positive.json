@@ -1,0 +1,100 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "_teamagentTag": "teamagent-pre-tool-use",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c '[ -f \"$1\" ] || exit 0; exec node \"$1\"' _ C:/Users/tianhaoxuan/AppData/Local/Temp/ta-299-home-pos-JDerDA/.teamagent/hooks/bin-pre-tool-use.cjs",
+            "timeout": 30
+          }
+        ],
+        "matcher": "Bash|Write|Edit|WebFetch"
+      }
+    ],
+    "PostToolUse": [
+      {
+        "_teamagentTag": "teamagent-post-tool-use",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c '[ -f \"$1\" ] || exit 0; exec node \"$1\"' _ C:/Users/tianhaoxuan/AppData/Local/Temp/ta-299-home-pos-JDerDA/.teamagent/hooks/bin-post-tool-use.cjs",
+            "timeout": 30
+          }
+        ],
+        "matcher": "Bash|Write|Edit|WebFetch"
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "_teamagentTag": "teamagent-user-prompt-submit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c '[ -f \"$1\" ] || exit 0; exec node \"$1\"' _ C:/Users/tianhaoxuan/AppData/Local/Temp/ta-299-home-pos-JDerDA/.teamagent/hooks/bin-user-prompt-submit.cjs",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "_teamagentTag": "teamagent-stop",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c '[ -f \"$1\" ] || exit 0; exec node \"$1\"' _ C:/Users/tianhaoxuan/AppData/Local/Temp/ta-299-home-pos-JDerDA/.teamagent/hooks/bin-stop.cjs",
+            "timeout": 60
+          }
+        ]
+      },
+      {
+        "_teamagentTag": "teamagent-digital-twin-tap",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c '[ -f \"$1\" ] || exit 0; exec node \"$1\"' _ C:/Users/tianhaoxuan/AppData/Local/Temp/ta-299-home-pos-JDerDA/.teamagent/hooks/bin-digital-twin-tap.cjs",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "_teamagentTag": "teamagent-session-end",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c '[ -f \"$1\" ] || exit 0; exec node \"$1\"' _ C:/Users/tianhaoxuan/AppData/Local/Temp/ta-299-home-pos-JDerDA/.teamagent/hooks/bin-session-end.cjs",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "_teamagentTag": "teamagent-pre-compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c '[ -f \"$1\" ] || exit 0; exec node \"$1\"' _ C:/Users/tianhaoxuan/AppData/Local/Temp/ta-299-home-pos-JDerDA/.teamagent/hooks/bin-pre-compact.cjs",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "_teamagentTag": "teamagent-session-start",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c '[ -f \"$1\" ] || exit 0; exec node \"$1\"' _ C:/Users/tianhaoxuan/AppData/Local/Temp/ta-299-home-pos-JDerDA/.teamagent/hooks/bin-session-start.cjs",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

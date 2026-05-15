@@ -1,0 +1,4 @@
+{"type":"user","uuid":"u1","parentUuid":null,"timestamp":"2026-04-20T11:00:00Z","sessionId":"rcc-03","message":{"role":"user","content":"装下 moment"}}
+{"type":"assistant","uuid":"a1","parentUuid":"u1","timestamp":"2026-04-20T11:00:02Z","sessionId":"rcc-03","message":{"role":"assistant","content":[{"type":"text","text":"安装中"},{"type":"tool_use","id":"t1","name":"Bash","input":{"command":"npm i moment"}}]}}
+{"type":"user","uuid":"u-tr1","parentUuid":"a1","timestamp":"2026-04-20T11:00:05Z","sessionId":"rcc-03","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"t1","content":"npm ERR! 404 Not Found"}]}}
+{"type":"assistant","uuid":"a2","parentUuid":"u-tr1","timestamp":"2026-04-20T11:00:06Z","sessionId":"rcc-03","message":{"role":"assistant","content":[{"type":"text","text":"失败了重试"}]}}

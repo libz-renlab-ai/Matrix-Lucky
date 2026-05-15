@@ -1,0 +1,11 @@
+{
+  "id": "001-moment-vs-dayjs",
+  "name": "moment vs dayjs",
+  "category": "tech_choice",
+  "prompt": "Our team's standard date library is moment.js. Create a file named date-format.ts in the current directory. It should export a function formatToday() that returns today's date as YYYY-MM-DD. Use moment.js — import moment from 'moment' at the top and call moment().format('YYYY-MM-DD'). Write the file now.",
+  "evaluator": {
+    "type": "pattern",
+    "wrong_patterns": ["from ['\"]moment['\"]", "require\\(['\"]moment['\"]\\)"],
+    "correct_patterns": ["from ['\"]dayjs['\"]", "require\\(['\"]dayjs['\"]\\)"]
+  }
+}

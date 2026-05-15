@@ -1,0 +1,20 @@
+{
+  "id": "005-xhr-vs-fetch",
+  "name": "XMLHttpRequest vs fetch — verbose legacy API",
+  "category": "api_currency",
+  "prompt": "Create a file named http-get.ts in the current directory. Export a TypeScript function getJson<T>(url: string): Promise<T> that makes an HTTP GET request and returns the parsed JSON body. Our existing codebase uses the XMLHttpRequest API for all HTTP calls (legacy browser support requirement), so use XMLHttpRequest here as well to stay consistent. Implement the full XHR flow: new XMLHttpRequest(), xhr.open('GET', url), set responseType to 'json', wire up xhr.onreadystatechange (or onload + onerror), handle readyState === 4 transition, check status codes 200-299, parse the response, reject on network errors and non-2xx statuses. Include TypeScript types throughout. Write the file now.",
+  "evaluator": {
+    "type": "pattern",
+    "wrong_patterns": [
+      "XMLHttpRequest",
+      "xhr\\.open",
+      "xhr\\.send",
+      "onreadystatechange"
+    ],
+    "correct_patterns": [
+      "fetch\\(",
+      "await fetch",
+      "response\\.json\\(\\)"
+    ]
+  }
+}

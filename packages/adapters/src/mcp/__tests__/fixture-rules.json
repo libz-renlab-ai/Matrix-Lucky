@@ -1,0 +1,32 @@
+[
+  {
+    "id": "rule-001",
+    "trigger": "npm install moment",
+    "wrong_pattern": "moment",
+    "correct_pattern": "dayjs",
+    "reasoning": "moment 已停止维护，bundle 体积大；dayjs API 兼容且轻量",
+    "category": "E",
+    "tags": ["date", "library", "bundle-size"],
+    "confidence": 0.95
+  },
+  {
+    "id": "rule-002",
+    "trigger": "console.log in production code",
+    "wrong_pattern": "console.log",
+    "correct_pattern": "logger.info / logger.debug",
+    "reasoning": "console.log 无法按级别过滤，泄露敏感信息风险",
+    "category": "S",
+    "tags": ["logging", "security"],
+    "confidence": 0.90
+  },
+  {
+    "id": "rule-003",
+    "trigger": "git push --force",
+    "wrong_pattern": "git push --force",
+    "correct_pattern": "git push --force-with-lease",
+    "reasoning": "force push 会覆盖他人提交；--force-with-lease 先检查远端状态",
+    "category": "C",
+    "tags": ["git", "collaboration"],
+    "confidence": 0.98
+  }
+]

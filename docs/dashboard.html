@@ -1,0 +1,3130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TeamAgent 知识库看板</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#0a0e1a;--bg2:#111827;--bg3:#1f2937;--bg4:#374151;
+    --cyan:#06b6d4;--green:#10b981;--purple:#8b5cf6;--amber:#f59e0b;
+    --red:#ef4444;--blue:#3b82f6;--pink:#ec4899;--orange:#f97316;
+    --text:#f1f5f9;--muted:#94a3b8;--border:#1e293b;
+  }
+  body{background:var(--bg);color:var(--text);font-family:'Inter','Segoe UI',sans-serif;font-size:14px;line-height:1.5}
+  a{color:inherit;text-decoration:none}
+
+  /* Layout */
+  .page{max-width:1400px;margin:0 auto;padding:24px 20px}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+  .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+
+  /* Header */
+  .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+  .logo{display:flex;align-items:center;gap:12px}
+  .logo-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--cyan),var(--purple));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
+  .logo-text h1{font-size:20px;font-weight:700;background:linear-gradient(90deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .logo-text p{font-size:12px;color:var(--muted)}
+  .header-meta{text-align:right;color:var(--muted);font-size:12px}
+
+  /* Cards */
+  .card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px}
+  .card-title{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+  .card-title-icon{width:18px;height:18px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px}
+
+  /* Stat cards */
+  .stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;position:relative;overflow:hidden}
+  .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+  .stat-card.cyan::before{background:linear-gradient(90deg,var(--cyan),transparent)}
+  .stat-card.green::before{background:linear-gradient(90deg,var(--green),transparent)}
+  .stat-card.purple::before{background:linear-gradient(90deg,var(--purple),transparent)}
+  .stat-card.amber::before{background:linear-gradient(90deg,var(--amber),transparent)}
+  .stat-card.blue::before{background:linear-gradient(90deg,var(--blue),transparent)}
+  .stat-num{font-size:36px;font-weight:800;line-height:1}
+  .stat-label{font-size:12px;color:var(--muted);margin-top:4px}
+  .stat-sub{font-size:11px;color:var(--muted);margin-top:8px;display:flex;align-items:center;gap:4px}
+  .stat-bg-icon{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:48px;opacity:.06}
+
+  /* Badges */
+  .tier-badge{font-size:11px;padding:2px 7px;border-radius:20px;font-weight:600;white-space:nowrap}
+  .cat-badge{font-size:11px;padding:2px 6px;border-radius:4px;font-weight:600}
+
+  /* Progress bar */
+  .progress-wrap{margin:8px 0}
+  .progress-label{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px}
+  .progress-label .name{color:var(--text)}
+  .progress-label .val{color:var(--muted)}
+  .progress-bar{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden}
+  .progress-fill{height:100%;border-radius:3px;transition:width .3s}
+
+  /* Rule list */
+  .rule-item{padding:10px 12px;border-radius:8px;background:var(--bg3);margin-bottom:8px;display:flex;align-items:flex-start;gap:10px}
+  .rule-item:last-child{margin-bottom:0}
+  .rule-rank{width:22px;height:22px;border-radius:50%;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);flex-shrink:0;margin-top:1px}
+  .rule-body{flex:1;min-width:0}
+  .rule-trigger{font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rule-meta{display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap}
+  .rule-hits{font-size:11px;color:var(--cyan);font-weight:600}
+  .rule-conf{font-size:11px;color:var(--muted)}
+
+  /* Tier ladder */
+  .tier-ladder{display:flex;flex-direction:column;gap:8px}
+  .tier-row{display:flex;align-items:center;gap:10px}
+  .tier-name{width:90px;font-size:12px;display:flex;align-items:center;gap:4px}
+  .tier-bar-wrap{flex:1;height:24px;background:var(--bg3);border-radius:6px;overflow:hidden;position:relative}
+  .tier-bar{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:8px;font-size:11px;font-weight:700;color:#fff;transition:width .4s}
+  .tier-count{width:30px;text-align:right;font-size:12px;color:var(--muted)}
+
+  /* Event kinds */
+  .event-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .event-item{background:var(--bg3);border-radius:8px;padding:10px 12px}
+  .event-kind{font-size:11px;color:var(--muted);margin-bottom:2px}
+  .event-count{font-size:22px;font-weight:800}
+
+  /* Compliance ring */
+  .compliance-wrap{display:flex;align-items:center;gap:16px}
+  .ring-container{position:relative;width:80px;height:80px;flex-shrink:0}
+  .ring-svg{width:80px;height:80px;transform:rotate(-90deg)}
+  .ring-bg{fill:none;stroke:var(--bg3);stroke-width:8}
+  .ring-fill{fill:none;stroke:var(--green);stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset .5s}
+  .ring-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+  .ring-pct{font-size:16px;font-weight:800;color:var(--green)}
+  .ring-sub{font-size:9px;color:var(--muted)}
+  .compliance-stats{flex:1}
+  .compliance-row{display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px solid var(--border)}
+  .compliance-row:last-child{border-bottom:none}
+
+  /* Timeline */
+  .timeline{display:flex;flex-direction:column;gap:6px}
+  .tl-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)}
+  .tl-item:last-child{border-bottom:none}
+  .tl-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+  .tl-kind{font-size:11px;color:var(--muted);width:140px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tl-time{font-size:10px;color:var(--bg4);margin-left:auto}
+
+  /* Confidence dist */
+  .conf-chart{display:flex;align-items:flex-end;gap:6px;height:80px;padding:0 4px}
+  .conf-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+  .conf-bar{width:100%;background:linear-gradient(180deg,var(--cyan),var(--purple));border-radius:4px 4px 0 0;min-height:2px}
+  .conf-bar-label{font-size:10px;color:var(--muted)}
+  .conf-bar-val{font-size:11px;font-weight:700;color:var(--text)}
+
+  /* Health score */
+  .health-score{text-align:center;padding:20px}
+  .score-big{font-size:64px;font-weight:900;background:linear-gradient(135deg,var(--cyan),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
+  .score-label{font-size:13px;color:var(--muted);margin-top:4px}
+  .score-factors{display:flex;flex-direction:column;gap:6px;margin-top:16px;text-align:left}
+  .factor{display:flex;align-items:center;gap:8px;font-size:12px}
+  .factor-icon{font-size:14px;width:20px;text-align:center}
+
+  /* Section title */
+  .section-title{font-size:16px;font-weight:700;margin:28px 0 12px;display:flex;align-items:center;gap:8px;color:var(--text)}
+  .section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+  /* Demerit bar */
+  .demerit-bar{height:4px;border-radius:2px;background:var(--bg3);overflow:hidden;margin-top:4px}
+  .demerit-fill{height:100%;border-radius:2px}
+
+  /* New rule item */
+  .new-rule{background:var(--bg3);border-radius:8px;padding:10px 12px;margin-bottom:6px;border-left:3px solid var(--cyan)}
+  .new-rule:last-child{margin-bottom:0}
+  .new-rule-trigger{font-size:13px;color:var(--text)}
+  .new-rule-meta{display:flex;gap:6px;margin-top:4px;align-items:center}
+  .new-rule-time{font-size:10px;color:var(--muted);margin-left:auto}
+
+  /* Footer */
+  .footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--border);text-align:center;color:var(--muted);font-size:12px}
+
+  @media(max-width:900px){.grid-4{grid-template-columns:1fr 1fr}.grid-3{grid-template-columns:1fr 1fr}.grid-5{grid-template-columns:1fr 1fr}}
+  @media(max-width:600px){.grid-2,.grid-3,.grid-4,.grid-5{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">🤖</div>
+      <div class="logo-text">
+        <h1>TeamAgent 知识库看板</h1>
+        <p>自进化 AI 规则引擎 · 实时状态</p>
+      </div>
+    </div>
+    <div class="header-meta">
+      <div>更新时间：2026/5/6 00:54:14</div>
+      <div style="margin-top:2px">数据源：personal + global DB</div>
+    </div>
+  </div>
+
+  <!-- Hero Stats -->
+  <div class="grid-5">
+    <div class="stat-card cyan">
+      <div class="stat-num" style="color:var(--cyan)">258</div>
+      <div class="stat-label">规则总数</div>
+      <div class="stat-sub">🟢 244 活跃  💤 3 休眠</div>
+      <div class="stat-bg-icon">📚</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-num" style="color:var(--green)">100%</div>
+      <div class="stat-label">AI 服从率</div>
+      <div class="stat-sub">✅ 1861 通过  ⚠️ 7 警告</div>
+      <div class="stat-bg-icon">🛡️</div>
+    </div>
+    <div class="stat-card purple">
+      <div class="stat-num" style="color:var(--purple)">1868</div>
+      <div class="stat-label">本次记录拦截次数</div>
+      <div class="stat-sub">pre-tool-use 钩子触发</div>
+      <div class="stat-bg-icon">🔍</div>
+    </div>
+    <div class="stat-card amber">
+      <div class="stat-num" style="color:var(--amber)">243</div>
+      <div class="stat-label">Canonical 级规则</div>
+      <div class="stat-sub">经过验证的高质量规则</div>
+      <div class="stat-bg-icon">⭐</div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-num" style="color:var(--blue)">8</div>
+      <div class="stat-label">最近 7 天新增</div>
+      <div class="stat-sub">系统持续自我学习</div>
+      <div class="stat-bg-icon">✨</div>
+    </div>
+  </div>
+
+  <!-- Tier distribution + Compliance + Confidence Dist -->
+  <div class="section-title">📊 核心指标</div>
+  <div class="grid-3">
+
+    <!-- Tier Ladder -->
+    <div class="card">
+      <div class="card-title">⚡ 规则梯队分布</div>
+      <div class="tier-ladder">
+        <div class="tier-row">
+            <div class="tier-name" style="color:#6366f1">🧪 experimental</div>
+            <div class="tier-bar-wrap">
+              <div class="tier-bar" style="width:4%;background:#6366f1">
+                9
+              </div>
+            </div>
+            <div class="tier-count">9</div>
+          </div><div class="tier-row">
+            <div class="tier-name" style="color:#f59e0b">⚠️ probation</div>
+            <div class="tier-bar-wrap">
+              <div class="tier-bar" style="width:4%;background:#f59e0b">
+                
+              </div>
+            </div>
+            <div class="tier-count">0</div>
+          </div><div class="tier-row">
+            <div class="tier-name" style="color:#10b981">✅ stable</div>
+            <div class="tier-bar-wrap">
+              <div class="tier-bar" style="width:4%;background:#10b981">
+                3
+              </div>
+            </div>
+            <div class="tier-count">3</div>
+          </div><div class="tier-row">
+            <div class="tier-name" style="color:#06b6d4">⭐ canonical</div>
+            <div class="tier-bar-wrap">
+              <div class="tier-bar" style="width:100%;background:#06b6d4">
+                243
+              </div>
+            </div>
+            <div class="tier-count">243</div>
+          </div><div class="tier-row">
+            <div class="tier-name" style="color:#f97316">🔥 enforced</div>
+            <div class="tier-bar-wrap">
+              <div class="tier-bar" style="width:4%;background:#f97316">
+                
+              </div>
+            </div>
+            <div class="tier-count">0</div>
+          </div><div class="tier-row">
+            <div class="tier-name" style="color:#6b7280">💤 dormant</div>
+            <div class="tier-bar-wrap">
+              <div class="tier-bar" style="width:4%;background:#6b7280">
+                3
+              </div>
+            </div>
+            <div class="tier-count">3</div>
+          </div>
+      </div>
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
+        <div style="font-size:11px;color:var(--muted)">梯队说明：experimental→probation→stable→canonical→enforced→dormant</div>
+      </div>
+    </div>
+
+    <!-- Compliance ring -->
+    <div class="card">
+      <div class="card-title">🛡️ AI 服从率分析</div>
+      <div class="compliance-wrap">
+        <div class="ring-container">
+          <svg class="ring-svg" viewBox="0 0 80 80">
+            <circle class="ring-bg" cx="40" cy="40" r="32"/>
+            <circle class="ring-fill" cx="40" cy="40" r="32"
+              stroke-dasharray="201.06192982974676"
+              stroke-dashoffset="0"
+              stroke="var(--green)"/>
+          </svg>
+          <div class="ring-label">
+            <div class="ring-pct" style="color:var(--green)">100%</div>
+            <div class="ring-sub">服从</div>
+          </div>
+        </div>
+        <div class="compliance-stats">
+          
+            <div class="compliance-row">
+              <span>✅ 直接通过</span>
+              <span style="color:var(--green);font-weight:700">1861</span>
+            </div>
+          
+            <div class="compliance-row">
+              <span>⚠️ 触发警告</span>
+              <span style="color:var(--amber);font-weight:700">7</span>
+            </div>
+          
+            <div class="compliance-row">
+              <span>🤝 AI 接受建议</span>
+              <span style="color:var(--cyan);font-weight:700">62</span>
+            </div>
+          
+            <div class="compliance-row">
+              <span>❌ AI 忽略规则</span>
+              <span style="color:var(--red);font-weight:700">7</span>
+            </div>
+          
+            <div class="compliance-row">
+              <span>📝 执行结果记录</span>
+              <span style="color:var(--muted);font-weight:700">7</span>
+            </div>
+          
+        </div>
+      </div>
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);font-size:11px;color:var(--muted)">
+        忽略率：0% · 低于 2% 属正常水平
+      </div>
+    </div>
+
+    <!-- Confidence distribution -->
+    <div class="card">
+      <div class="card-title">📈 置信度分布</div>
+      <div style="margin-bottom:12px">
+        <div class="conf-chart">
+          <div class="conf-bar-wrap">
+              <div class="conf-bar-val">0</div>
+              <div class="conf-bar" style="height:2px;background:linear-gradient(180deg,var(--purple),#4b5563)"></div>
+              <div class="conf-bar-label">0-20</div>
+            </div><div class="conf-bar-wrap">
+              <div class="conf-bar-val">0</div>
+              <div class="conf-bar" style="height:2px;background:linear-gradient(180deg,var(--purple),#4b5563)"></div>
+              <div class="conf-bar-label">20-40</div>
+            </div><div class="conf-bar-wrap">
+              <div class="conf-bar-val">0</div>
+              <div class="conf-bar" style="height:2px;background:linear-gradient(180deg,var(--blue),var(--purple))"></div>
+              <div class="conf-bar-label">40-60</div>
+            </div><div class="conf-bar-wrap">
+              <div class="conf-bar-val">8</div>
+              <div class="conf-bar" style="height:2px;background:linear-gradient(180deg,var(--cyan),var(--blue))"></div>
+              <div class="conf-bar-label">60-80</div>
+            </div><div class="conf-bar-wrap">
+              <div class="conf-bar-val">236</div>
+              <div class="conf-bar" style="height:70px;background:linear-gradient(180deg,var(--green),var(--cyan))"></div>
+              <div class="conf-bar-label">80-100</div>
+            </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px">
+        <div style="display:flex;justify-content:space-between;font-size:12px">
+          <span style="color:var(--muted)">高置信度规则 (≥80%)</span>
+          <span style="color:var(--green);font-weight:700">244 条</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px">
+          <span style="color:var(--muted)">中等置信度 (60-79%)</span>
+          <span style="color:var(--cyan);font-weight:700">0 条</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px">
+          <span style="color:var(--muted)">低置信度 (0-39%)（学习中）</span>
+          <span style="color:var(--purple);font-weight:700">0 条</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recording Memory Performance -->
+  <div class="section-title">🎙️ Recording Memory 性能</div>
+  <div class="grid-3" data-testid="recording-memory-performance">
+    <div class="card">
+      <div class="card-title">⏱️ Latency</div>
+      <div class="grid-2">
+        <div class="event-item">
+          <div class="event-kind">p50 latency</div>
+          <div class="event-count" style="color:var(--cyan)" data-testid="recording-p50">2ms</div>
+        </div>
+        <div class="event-item">
+          <div class="event-kind">p95 latency</div>
+          <div class="event-count" style="color:var(--purple)" data-testid="recording-p95">8ms</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;font-size:12px;color:var(--muted)">
+        import 0 · search 0 · inject 500
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🚦 Retrieval Health</div>
+      <div class="event-grid">
+        <div class="event-item"><div class="event-kind">slow queries</div><div class="event-count" style="color:var(--amber)" data-testid="recording-slow">0</div></div>
+        <div class="event-item"><div class="event-kind">empty queries</div><div class="event-count" style="color:var(--blue)" data-testid="recording-empty">500</div></div>
+        <div class="event-item"><div class="event-kind">failed queries</div><div class="event-count" style="color:var(--red)" data-testid="recording-failed">0</div></div>
+        <div class="event-item"><div class="event-kind">oversized injections</div><div class="event-count" style="color:var(--orange)" data-testid="recording-oversized">0</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🧾 Latest Activity</div>
+      
+        <div style="padding:7px 0;border-bottom:1px solid var(--border)">
+          <div style="display:flex;justify-content:space-between;gap:8px;font-size:12px">
+            <span style="color:var(--text);font-weight:600">inject · empty</span>
+            <span style="color:var(--cyan);font-weight:700">3ms</span>
+          </div>
+          <div style="font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+            你是知识提取器。任务是把下面这段上下文（用户在 Claude Code 会话中纠正了 AI 的行为）提炼成一条结构化的&quot;知识条目&quot;，供团队 AI 未来参考。
+
+【上下文】
+信号权重: 0.90
+```
+[信号: explicit_denial, 权重: 0.90]
+用户纠正: &lt;task-notification&gt;
+&lt;task-id&gt;a346c5e89e58e47b0&lt;/task-id&gt;
+&lt;tool-use-id&gt;toolu_01K2ry5aibusHwa4tWHpZvDw&lt;/tool-use-id&gt;
+&lt;output-file&gt;/private/tmp/claude-501/-Users-m1-projects-TeamBrain--claude-worktrees-dev-codex-pr/3b9933f4-3517-4c4b-a1b5-418ff3dba9ed/tasks/a346c5e89e58e47b0.output&lt;/output-file&gt;
+&lt;status&gt;completed&lt;/status&gt;
+&lt;summary&gt;Agent &quot;Wave6-A3: MCP+Cursor+Trae compilers→VERIFIED&quot; completed&lt;/summary&gt;
+&lt;result&gt;Not logged in · Please run /login&lt;/result&gt;
+&lt;usage&gt;&lt;total_tokens&gt;1384&lt;/total_tokens&gt;&lt;tool_uses&gt;48&lt;/tool_uses&gt;&lt;duration_ms&gt;504384&lt;/duration_ms&gt;&lt;/usage&gt;
+&lt;/task-notification&gt;
+```
+
+【输出字段】
+- category: &quot;C&quot; | &quot;E&quot; | &quot;S&quot; | &quot;K&quot;
+  - C 代码层（语法、类型、API 用法）
+  - E 工程层（架构、依赖、工具链）
+  - S 策略层（任务分解、实现顺序、取舍）
+  - K 认知层（用户偏好、心智模型、协作方式）
+- tags: string[]  自由标签，2-5 个短词；英文或中文均可（如 &quot;http-client&quot; &quot;architecture&quot;）
+- type: &quot;avoidance&quot; | &quot;practice&quot;
+  - avoidance 避坑（&quot;不要 X&quot;）——**必须**有可字面匹配的 wrong_pattern 关键词
+  - practice 最佳实践（&quot;就该 X&quot;）——wrong_pattern **必须留空**
+  ⚠️ 若有可字面匹配的反模式，一律选 avoidance。严禁 practice + wrong_pattern 组合，
+      否则 validator L0 会拒收 (practice_must_not_have_wrong_pattern /
+      avoidance_must_have_wrong_pattern)。
+- nature: &quot;objective&quot; | &quot;subjective&quot;
+  - objective 客观可验证（语法错误、API 行为）
+  - subjective 主观偏好（架构选型、风格）
+- trigger: string  何时这条知识生效。一句话，描述场景，不包含具体做法
+- wrong_pattern: string  **关键规则**——**可字面 substring 匹配**的通用关键词。
+  **元原则** (3 条必须全中)：
+    (a) 字面稳定 —— 跨项目跨团队，这串字符含义相同
+    (b) 可 substring 命中 —— 在代码/命令/配置文本里会原样出现
+    (c) 脱离上下文仍指向问题 —— 看到这串字符就知道踩坑，不必懂周围含义
+  **允许的 18 类**（A 代码/语言、B 基础设施/命令、C 配置/环境、D 数据/查询、E 安全/质量）：
+    A1 依赖/包/模块名：`moment` `jQuery` `@reduxjs/toolkit` `lodash` `request`
+    A2 API/方法/属性： `localStorage.getItem` `document.write` `eval(` `innerHTML =` `XMLHttpRequest`
+    A3 语法/关键字：   `var ` `== ` `!= ` `new Function(` `with (`
+    A4 类型系统标记：  `as any` `: any` `@ts-ignore` `@ts-nocheck` `Record&lt;string, any&gt;`
+    A5 框架反模式：    `dangerouslySetInnerHTML` `key={index}` `v-html` `ng-bind-html`
+    B1 Git：           `git push --force` `git commit --no-verify` `git reset --hard`
+    B2 包管理：        `npm install -g` `pip install --user` `:latest`
+    B3 Shell 危险：    `rm -rf /` `chmod 777` `chmod -R 777` `sudo rm` `umask 000` `eval $`
+    B4 Docker：        `FROM .*:latest` (字面 `:latest`) `USER root` `privileged: true` `--cap-add=ALL`
+    B5 Kubernetes：    `hostNetwork: true` `runAsUser: 0` `hostPath:` `privileged: true`
+    C1 配置键：        `allowJs` `strict: false` `noImplicitAny: false` `skipLibCheck: true`
+    C2 环境变量：      `NODE_ENV=development` `DEBUG=*` `DISABLE_AUTH=`
+    C3 URL/网络：      `http://` (明文) `localhost:` `0.0.0.0/0` 硬编码 IP
+    D1 SQL 反模式：    `SELECT *` `DROP TABLE` `DELETE FROM ` (无 WHERE) `OR 1=1` `TRUNCATE `
+    D2 正则风险：      `.*.*.*` (连续通配) `(.+)+` (回溯炸弹)
+    E1 凭证/密钥前缀： `AKIA` (AWS) `ghp_` (GitHub PAT) `sk_live_` (Stripe) `SG.` (SendGrid)
+    E2 XSS/反序列化：  `innerHTML =` `document.write(` `eval(` `new Function(` `javascript:` `pickle.loads(`
+    E3 测试/日志残留： `.only(` `.skip(` `xdescribe(` `fdescribe(` `console.log(` (prod) `print(` (prod)
+  多个候选用 `|` 分隔，每段 ≥3 字符，≤40 字符。
+  **四条铁律**：
+    1. 最长公共片段 —— 宁要 `npm install` 一个短词，不要 `npm install --save moment^2.29` 完整行
+    2. pipe 分多 variant —— 同概念多写法 `innerHTML =|innerHTML+=`
+    3. 避免过度通用 token —— 禁 `if`/`for`/`function`/`return`/`log(`（单独）
+    4. 不写正则 —— matcher 只做 substring，`\d+` 不生效，用最长字面前缀
+  **禁止**：
+    ❌ 整句自然语言（&quot;demote=0 时...&quot; &quot;AI 没先查...&quot;）
+    ❌ 项目专属路径/函数（`packages/...`、`@teamagent/...`、`tierFromDemerit`）
+    ❌ 抽象动作描述（&quot;直接 emit 新 source 值&quot;）
+    ❌ 超长字面量（&gt;40 字符一般太具体）
+    ❌ 测试代码片段（`tierFromDemerit(4, 'stable')`）
+  找不到通用关键词时，type 改 &quot;practice&quot; 并留空 wrong_pattern——而非硬编入具体字面量。
+- correct_pattern: string  正确做法的关键字/句式或一句话建议
+- reasoning: string  一句话解释为什么。包含&quot;为什么错&quot;和&quot;为什么对&quot;
+
+【示例】
+示例输入：用户说 &quot;不用 axios，用 fetch，项目要零依赖&quot;，AI 之前建议 axios。
+示例输出：
+```json
+{
+  &quot;category&quot;: &quot;E&quot;,
+  &quot;tags&quot;: [&quot;http-client&quot;, &quot;dependency&quot;, &quot;tech-choice&quot;],
+  &quot;type&quot;: &quot;avoidance&quot;,
+  &quot;nature&quot;: &quot;subjective&quot;,
+  &quot;trigger&quot;: &quot;需要发起 HTTP 请求&quot;,
+  &quot;wrong_pattern&quot;: &quot;axios&quot;,
+  &quot;correct_pattern&quot;: &quot;fetch&quot;,
+  &quot;reasoning&quot;: &quot;项目偏好零依赖，fetch 在 Node 18+ 原生可用，无需额外包&quot;
+}
+```
+
+示例输入：用户说 &quot;这思路不对，先写测试再写实现&quot;，AI 直接开始写实现代码。
+示例输出：
+```json
+{
+  &quot;category&quot;: &quot;S&quot;,
+  &quot;tags&quot;: [&quot;tdd&quot;, &quot;workflow&quot;],
+  &quot;type&quot;: &quot;practice&quot;,
+  &quot;nature&quot;: &quot;subjective&quot;,
+  &quot;trigger&quot;: &quot;开始实现新功能前&quot;,
+  &quot;wrong_pattern&quot;: &quot;&quot;,
+  &quot;correct_pattern&quot;: &quot;先写失败测试再写实现（TDD）&quot;,
+  &quot;reasoning&quot;: &quot;团队采用 TDD 节奏：红→绿→重构，能减少回归并强制接口先行&quot;
+}
+```
+
+示例输入：用户说 &quot;不对&quot; 但没给替代方案，上下文也看不出原因。
+示例输出：
+```json
+null
+```
+
+【反例——不要这样做】
+❌ 错误：wrong_pattern = &quot;AI 直接跑 npm install moment, 没先查项目有没有用别的时间库&quot;
+✅ 正确：wrong_pattern = &quot;moment&quot;   （只要库名本身，整句描述进 reasoning）
+
+❌ 错误：wrong_pattern = &quot;直接在 pipeline 里 emit 新 source 值&quot;
+✅ 正确：type 改 &quot;practice&quot;，wrong_pattern 留空    （找不到通用关键词时别硬写）
+
+❌ 错误：wrong_pattern = &quot;packages/core/src/scorer.ts 未判空&quot;
+✅ 正确：wrong_pattern = &quot;&quot;（项目内部路径无普适价值，type=&quot;practice&quot;）
+
+【严格要求】
+1. 只输出**一段** JSON（在 ```json fenced block 里）或字面量 `null`
+2. 不要在 JSON 前后添加任何解释文字
+3. 如果上下文信息不足以提取出有用的知识（例如用户只说&quot;不对&quot;但没给替代、或纠正内容太私人化），输出 `null`
+4. trigger 要写得通用一些，让未来不同任务里都能匹配；不要把具体实现细节写进 trigger
+5. wrong_pattern 必须是**可跨项目复用**的库名/API 符号/命令/配置键名。整句描述、项目内部路径、抽象动作描述一律不接受——找不到时就改 type=&quot;practice&quot; 留空
+          </div>
+        </div>
+      
+        <div style="padding:7px 0;border-bottom:1px solid var(--border)">
+          <div style="display:flex;justify-content:space-between;gap:8px;font-size:12px">
+            <span style="color:var(--text);font-weight:600">inject · empty</span>
+            <span style="color:var(--cyan);font-weight:700">1ms</span>
+          </div>
+          <div style="font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+            你是知识提取器。任务是把下面这段上下文（用户在 Claude Code 会话中纠正了 AI 的行为）提炼成一条结构化的&quot;知识条目&quot;，供团队 AI 未来参考。
+
+【上下文】
+信号权重: 0.90
+```
+[信号: explicit_denial, 权重: 0.90]
+用户纠正: &lt;task-notification&gt;
+&lt;task-id&gt;a346c5e89e58e47b0&lt;/task-id&gt;
+&lt;tool-use-id&gt;toolu_01K2ry5aibusHwa4tWHpZvDw&lt;/tool-use-id&gt;
+&lt;output-file&gt;/private/tmp/claude-501/-Users-m1-projects-TeamBrain--claude-worktrees-dev-codex-pr/3b9933f4-3517-4c4b-a1b5-418ff3dba9ed/tasks/a346c5e89e58e47b0.output&lt;/output-file&gt;
+&lt;status&gt;completed&lt;/status&gt;
+&lt;summary&gt;Agent &quot;Wave6-A3: MCP+Cursor+Trae compilers→VERIFIED&quot; completed&lt;/summary&gt;
+&lt;result&gt;Not logged in · Please run /login&lt;/result&gt;
+&lt;usage&gt;&lt;total_tokens&gt;1384&lt;/total_tokens&gt;&lt;tool_uses&gt;48&lt;/tool_uses&gt;&lt;duration_ms&gt;504384&lt;/duration_ms&gt;&lt;/usage&gt;
+&lt;/task-notification&gt;
+```
+
+【输出字段】
+- category: &quot;C&quot; | &quot;E&quot; | &quot;S&quot; | &quot;K&quot;
+  - C 代码层（语法、类型、API 用法）
+  - E 工程层（架构、依赖、工具链）
+  - S 策略层（任务分解、实现顺序、取舍）
+  - K 认知层（用户偏好、心智模型、协作方式）
+- tags: string[]  自由标签，2-5 个短词；英文或中文均可（如 &quot;http-client&quot; &quot;architecture&quot;）
+- type: &quot;avoidance&quot; | &quot;practice&quot;
+  - avoidance 避坑（&quot;不要 X&quot;）——**必须**有可字面匹配的 wrong_pattern 关键词
+  - practice 最佳实践（&quot;就该 X&quot;）——wrong_pattern **必须留空**
+  ⚠️ 若有可字面匹配的反模式，一律选 avoidance。严禁 practice + wrong_pattern 组合，
+      否则 validator L0 会拒收 (practice_must_not_have_wrong_pattern /
+      avoidance_must_have_wrong_pattern)。
+- nature: &quot;objective&quot; | &quot;subjective&quot;
+  - objective 客观可验证（语法错误、API 行为）
+  - subjective 主观偏好（架构选型、风格）
+- trigger: string  何时这条知识生效。一句话，描述场景，不包含具体做法
+- wrong_pattern: string  **关键规则**——**可字面 substring 匹配**的通用关键词。
+  **元原则** (3 条必须全中)：
+    (a) 字面稳定 —— 跨项目跨团队，这串字符含义相同
+    (b) 可 substring 命中 —— 在代码/命令/配置文本里会原样出现
+    (c) 脱离上下文仍指向问题 —— 看到这串字符就知道踩坑，不必懂周围含义
+  **允许的 18 类**（A 代码/语言、B 基础设施/命令、C 配置/环境、D 数据/查询、E 安全/质量）：
+    A1 依赖/包/模块名：`moment` `jQuery` `@reduxjs/toolkit` `lodash` `request`
+    A2 API/方法/属性： `localStorage.getItem` `document.write` `eval(` `innerHTML =` `XMLHttpRequest`
+    A3 语法/关键字：   `var ` `== ` `!= ` `new Function(` `with (`
+    A4 类型系统标记：  `as any` `: any` `@ts-ignore` `@ts-nocheck` `Record&lt;string, any&gt;`
+    A5 框架反模式：    `dangerouslySetInnerHTML` `key={index}` `v-html` `ng-bind-html`
+    B1 Git：           `git push --force` `git commit --no-verify` `git reset --hard`
+    B2 包管理：        `npm install -g` `pip install --user` `:latest`
+    B3 Shell 危险：    `rm -rf /` `chmod 777` `chmod -R 777` `sudo rm` `umask 000` `eval $`
+    B4 Docker：        `FROM .*:latest` (字面 `:latest`) `USER root` `privileged: true` `--cap-add=ALL`
+    B5 Kubernetes：    `hostNetwork: true` `runAsUser: 0` `hostPath:` `privileged: true`
+    C1 配置键：        `allowJs` `strict: false` `noImplicitAny: false` `skipLibCheck: true`
+    C2 环境变量：      `NODE_ENV=development` `DEBUG=*` `DISABLE_AUTH=`
+    C3 URL/网络：      `http://` (明文) `localhost:` `0.0.0.0/0` 硬编码 IP
+    D1 SQL 反模式：    `SELECT *` `DROP TABLE` `DELETE FROM ` (无 WHERE) `OR 1=1` `TRUNCATE `
+    D2 正则风险：      `.*.*.*` (连续通配) `(.+)+` (回溯炸弹)
+    E1 凭证/密钥前缀： `AKIA` (AWS) `ghp_` (GitHub PAT) `sk_live_` (Stripe) `SG.` (SendGrid)
+    E2 XSS/反序列化：  `innerHTML =` `document.write(` `eval(` `new Function(` `javascript:` `pickle.loads(`
+    E3 测试/日志残留： `.only(` `.skip(` `xdescribe(` `fdescribe(` `console.log(` (prod) `print(` (prod)
+  多个候选用 `|` 分隔，每段 ≥3 字符，≤40 字符。
+  **四条铁律**：
+    1. 最长公共片段 —— 宁要 `npm install` 一个短词，不要 `npm install --save moment^2.29` 完整行
+    2. pipe 分多 variant —— 同概念多写法 `innerHTML =|innerHTML+=`
+    3. 避免过度通用 token —— 禁 `if`/`for`/`function`/`return`/`log(`（单独）
+    4. 不写正则 —— matcher 只做 substring，`\d+` 不生效，用最长字面前缀
+  **禁止**：
+    ❌ 整句自然语言（&quot;demote=0 时...&quot; &quot;AI 没先查...&quot;）
+    ❌ 项目专属路径/函数（`packages/...`、`@teamagent/...`、`tierFromDemerit`）
+    ❌ 抽象动作描述（&quot;直接 emit 新 source 值&quot;）
+    ❌ 超长字面量（&gt;40 字符一般太具体）
+    ❌ 测试代码片段（`tierFromDemerit(4, 'stable')`）
+  找不到通用关键词时，type 改 &quot;practice&quot; 并留空 wrong_pattern——而非硬编入具体字面量。
+- correct_pattern: string  正确做法的关键字/句式或一句话建议
+- reasoning: string  一句话解释为什么。包含&quot;为什么错&quot;和&quot;为什么对&quot;
+
+【示例】
+示例输入：用户说 &quot;不用 axios，用 fetch，项目要零依赖&quot;，AI 之前建议 axios。
+示例输出：
+```json
+{
+  &quot;category&quot;: &quot;E&quot;,
+  &quot;tags&quot;: [&quot;http-client&quot;, &quot;dependency&quot;, &quot;tech-choice&quot;],
+  &quot;type&quot;: &quot;avoidance&quot;,
+  &quot;nature&quot;: &quot;subjective&quot;,
+  &quot;trigger&quot;: &quot;需要发起 HTTP 请求&quot;,
+  &quot;wrong_pattern&quot;: &quot;axios&quot;,
+  &quot;correct_pattern&quot;: &quot;fetch&quot;,
+  &quot;reasoning&quot;: &quot;项目偏好零依赖，fetch 在 Node 18+ 原生可用，无需额外包&quot;
+}
+```
+
+示例输入：用户说 &quot;这思路不对，先写测试再写实现&quot;，AI 直接开始写实现代码。
+示例输出：
+```json
+{
+  &quot;category&quot;: &quot;S&quot;,
+  &quot;tags&quot;: [&quot;tdd&quot;, &quot;workflow&quot;],
+  &quot;type&quot;: &quot;practice&quot;,
+  &quot;nature&quot;: &quot;subjective&quot;,
+  &quot;trigger&quot;: &quot;开始实现新功能前&quot;,
+  &quot;wrong_pattern&quot;: &quot;&quot;,
+  &quot;correct_pattern&quot;: &quot;先写失败测试再写实现（TDD）&quot;,
+  &quot;reasoning&quot;: &quot;团队采用 TDD 节奏：红→绿→重构，能减少回归并强制接口先行&quot;
+}
+```
+
+示例输入：用户说 &quot;不对&quot; 但没给替代方案，上下文也看不出原因。
+示例输出：
+```json
+null
+```
+
+【反例——不要这样做】
+❌ 错误：wrong_pattern = &quot;AI 直接跑 npm install moment, 没先查项目有没有用别的时间库&quot;
+✅ 正确：wrong_pattern = &quot;moment&quot;   （只要库名本身，整句描述进 reasoning）
+
+❌ 错误：wrong_pattern = &quot;直接在 pipeline 里 emit 新 source 值&quot;
+✅ 正确：type 改 &quot;practice&quot;，wrong_pattern 留空    （找不到通用关键词时别硬写）
+
+❌ 错误：wrong_pattern = &quot;packages/core/src/scorer.ts 未判空&quot;
+✅ 正确：wrong_pattern = &quot;&quot;（项目内部路径无普适价值，type=&quot;practice&quot;）
+
+【严格要求】
+1. 只输出**一段** JSON（在 ```json fenced block 里）或字面量 `null`
+2. 不要在 JSON 前后添加任何解释文字
+3. 如果上下文信息不足以提取出有用的知识（例如用户只说&quot;不对&quot;但没给替代、或纠正内容太私人化），输出 `null`
+4. trigger 要写得通用一些，让未来不同任务里都能匹配；不要把具体实现细节写进 trigger
+5. wrong_pattern 必须是**可跨项目复用**的库名/API 符号/命令/配置键名。整句描述、项目内部路径、抽象动作描述一律不接受——找不到时就改 type=&quot;practice&quot; 留空
+          </div>
+        </div>
+      
+        <div style="padding:7px 0;border-bottom:1px solid var(--border)">
+          <div style="display:flex;justify-content:space-between;gap:8px;font-size:12px">
+            <span style="color:var(--text);font-weight:600">inject · empty</span>
+            <span style="color:var(--cyan);font-weight:700">3ms</span>
+          </div>
+          <div style="font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+            你是知识提取器。下面是 106 条来自开发过程的错误信号，类别为 E（工程层（架构、依赖、工具链、构建））。
+
+请分析这些信号，提炼出 1-3 条有价值的&quot;知识条目&quot;（如果信号太弱或内容重复，提炼更少条甚至 0 条）。
+
+【错误信号】
+--- 信号 1 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;each&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks
+
+--- 信号 2 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;task&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 3 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;human&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 4 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;blockers&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 5 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;missing&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks
+
+--- 信号 6 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;prompt&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 7 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;agent&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 8 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;schema&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 9 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;must&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks
+
+--- 信号 10 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;resolved&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 11 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;targeted&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 12 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;question&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 13 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;every&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks
+
+--- 信号 14 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;blocker&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 15 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;real&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 16 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;completed&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 17 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;exact&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks
+
+--- 信号 18 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;search&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 19 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;found&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks
+
+--- 信号 20 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;same&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks
+
+--- 信号 21 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;only&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 22 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;claude&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks
+
+--- 信号 23 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;stop&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks
+
+--- 信号 24 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;hook&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks
+
+--- 信号 25 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;agents&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 26 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;self&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks
+
+--- 信号 27 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;check&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks
+
+--- 信号 28 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;help&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 29 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;find&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 30 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;https&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 31 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;code&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 32 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;docs&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 33 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;guide&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 34 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;settings&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 35 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;json`&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 36 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;bash&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks
+
+--- 信号 37 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;```bash&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 38 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;grep&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 39 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;config&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 40 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;echo&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 41 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;unresolved&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 42 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;review&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 43 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;final&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 44 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;feedback&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 45 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;last&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 46 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;message&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 47 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;malformed&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 48 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;&lt;laziness&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 49 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;report&gt;&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 50 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;block&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks
+
+--- 信号 51 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;append&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 52 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;stopping&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 53 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;premature&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 54 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;&lt;true|false&gt;&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 55 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;permission&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 56 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;seeking&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 57 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;ownership&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 58 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;dodging&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 59 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;simplest&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 60 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;reasoning&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 61 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;loop&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 62 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;known&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 63 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;limitation&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 64 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;laziness&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 65 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;categories&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 66 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;honestly&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 67 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;evaluate&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 68 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;whether&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 69 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;work&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks
+
+--- 信号 70 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;exhibited&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 71 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;pattern&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 72 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;emit&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 73 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;report&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 74 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;appended&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 75 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;bool&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 76 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;true&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 77 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;continue&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 78 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;turn&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 79 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;instead&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 80 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;stdout&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 81 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;agent**&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 82 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;benchmark&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 83 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;`grep&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 84 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;reminder&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 85 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;path&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 86 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;placeholder&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 87 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;users&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 88 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;projects&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 89 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;packages&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 90 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;verify&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 91 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;things&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 92 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;tmux&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 93 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;skill&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 94 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;skills&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 95 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;system&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 96 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;name&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 97 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;list&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 98 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;output&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 99 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;test&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 100 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;description&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 101 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;want&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 102 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;start&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 103 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;true`&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 104 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;requires&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your self-report admits laziness in: premature_stopping,ownership_dodging,simplest_fix. Reject 
+  - 用户纠正：Stop hook feedback:
+Your self-report admits laziness in: simplest_fix. Reject your last message — continue the work
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 105 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;actually&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your self-report admits laziness in: premature_stopping,ownership_dodging,simplest_fix. Reject 
+  - 用户纠正：Stop hook feedback:
+Your self-report admits laziness in: simplest_fix. Reject your last message — continue the work
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 106 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;fixing&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your self-report admits laziness in: premature_stopping,ownership_dodging,simplest_fix. Reject 
+  - 用户纠正：Stop hook feedback:
+Your self-report admits laziness in: simplest_fix. Reject your last message — continue the work
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+【输出字段（每条知识条目）】
+- category: &quot;E&quot;（固定）
+- tags: string[] 自由标签，2-5 个短词
+- type: &quot;avoidance&quot; | &quot;practice&quot;
+- nature: &quot;objective&quot; | &quot;subjective&quot;
+- trigger: string 何时生效，通用场景描述
+- wrong_pattern: string 错误做法关键字；不适用填 &quot;&quot;
+- correct_pattern: string 正确做法一句话
+- reasoning: string 一句话解释原因
+
+【严格要求】
+1. 只输出一个 JSON 数组（在 ```json fenced block 里），数组元素是 0-3 个知识条目对象
+2. 如果所有信号都太弱或太私人化，输出空数组 `[]`
+3. 不要输出除 JSON 以外的任何文字
+
+【示例输出】
+```json
+[
+  {
+    &quot;category&quot;: &quot;E&quot;,
+    &quot;tags&quot;: [&quot;vitest&quot;, &quot;windows&quot;, &quot;concurrency&quot;],
+    &quot;type&quot;: &quot;avoidance&quot;,
+    &quot;nature&quot;: &quot;objective&quot;,
+    &quot;trigger&quot;: &quot;在 Windows 环境下配置 vitest&quot;,
+    &quot;wrong_pattern&quot;: &quot;fileParallelism: true&quot;,
+    &quot;correct_pattern&quot;: &quot;fileParallelism: false&quot;,
+    &quot;reasoning&quot;: &quot;Windows 下 vitest 并发模式会导致 OOM，必须顺序跑&quot;
+  }
+]
+```
+          </div>
+        </div>
+      
+        <div style="padding:7px 0;border-bottom:1px solid var(--border)">
+          <div style="display:flex;justify-content:space-between;gap:8px;font-size:12px">
+            <span style="color:var(--text);font-weight:600">inject · empty</span>
+            <span style="color:var(--cyan);font-weight:700">3ms</span>
+          </div>
+          <div style="font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+            你是知识提取器。下面是 106 条来自开发过程的错误信号，类别为 E（工程层（架构、依赖、工具链、构建））。
+
+请分析这些信号，提炼出 1-3 条有价值的&quot;知识条目&quot;（如果信号太弱或内容重复，提炼更少条甚至 0 条）。
+
+【错误信号】
+--- 信号 1 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;each&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks
+
+--- 信号 2 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;task&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 3 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;human&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 4 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;blockers&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 5 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;missing&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks
+
+--- 信号 6 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;prompt&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 7 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;agent&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 8 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;schema&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 9 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;must&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks
+
+--- 信号 10 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;resolved&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 11 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;targeted&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 12 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;question&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 13 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;every&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks
+
+--- 信号 14 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;blocker&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 15 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;real&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 16 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;completed&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 17 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;exact&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks
+
+--- 信号 18 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;search&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 19 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;found&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks
+
+--- 信号 20 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;same&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks
+
+--- 信号 21 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;only&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 22 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;claude&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks
+
+--- 信号 23 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;stop&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks
+
+--- 信号 24 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;hook&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks
+
+--- 信号 25 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;agents&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 26 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;self&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks
+
+--- 信号 27 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;check&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks
+
+--- 信号 28 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;help&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 29 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;find&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 30 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;https&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 31 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;code&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 32 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;docs&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 33 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;guide&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 34 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;settings&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 35 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;json`&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 36 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;bash&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks
+
+--- 信号 37 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;```bash&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 38 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;grep&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 39 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;config&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 40 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;echo&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 41 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;unresolved&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 42 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;review&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 43 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;final&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 44 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;feedback&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 45 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;last&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 46 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;message&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 47 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;malformed&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 48 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;&lt;laziness&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 49 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;report&gt;&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 50 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;block&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks
+
+--- 信号 51 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;append&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 52 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;stopping&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 53 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;premature&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 54 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;&lt;true|false&gt;&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 55 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;permission&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 56 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;seeking&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 57 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;ownership&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 58 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;dodging&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 59 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;simplest&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 60 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;reasoning&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 61 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;loop&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 62 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;known&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 63 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;limitation&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 64 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;laziness&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 65 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;categories&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 66 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;honestly&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 67 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;evaluate&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 68 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;whether&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 69 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;work&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks
+
+--- 信号 70 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;exhibited&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 71 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;pattern&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 72 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;emit&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 73 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;report&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 74 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;appended&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 75 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;bool&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 76 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;true&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 77 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;continue&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 78 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;turn&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 79 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;instead&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 80 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;stdout&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 81 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;agent**&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 82 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;benchmark&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 83 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;`grep&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 84 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;reminder&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 85 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;path&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 86 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;placeholder&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+
+--- 信号 87 [H] weight=0.60 sessions=3 ---
+[H 聚类] 关键词 &quot;users&quot; 在 3 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 88 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;projects&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 89 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;packages&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 90 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;verify&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：⏺ Ran 4 stop hooks                                                                                                 
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 91 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;things&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 92 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;tmux&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 93 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;skill&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 94 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;skills&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 95 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;system&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;blocker-self-check&gt; block (no &lt;blocker-self-
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 96 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;name&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 97 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;list&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Each task is modified to include 3–5 human-validated, realistic, and unguessable blockers: pieces of critical infor
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 98 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;output&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 99 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;test&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+
+--- 信号 100 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;description&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 101 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;want&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 102 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;start&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 103 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;true`&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your self-report admits unresolved blockers in: exhausted_repo_search. Reject your last message
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 104 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;requires&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your self-report admits laziness in: premature_stopping,ownership_dodging,simplest_fix. Reject 
+  - 用户纠正：Stop hook feedback:
+Your self-report admits laziness in: simplest_fix. Reject your last message — continue the work
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 105 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;actually&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your self-report admits laziness in: premature_stopping,ownership_dodging,simplest_fix. Reject 
+  - 用户纠正：Stop hook feedback:
+Your self-report admits laziness in: simplest_fix. Reject your last message — continue the work
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+--- 信号 106 [H] weight=0.40 sessions=2 ---
+[H 聚类] 关键词 &quot;fixing&quot; 在 2 个不同 session 中重复出现
+相关上下文片段：
+  - 用户纠正：Stop hook feedback:
+Your self-report admits laziness in: premature_stopping,ownership_dodging,simplest_fix. Reject 
+  - 用户纠正：Stop hook feedback:
+Your self-report admits laziness in: simplest_fix. Reject your last message — continue the work
+  - 用户纠正：Stop hook feedback:
+Your last message is missing (or has a malformed) &lt;laziness-self-report&gt; block (no &lt;laziness-se
+
+【输出字段（每条知识条目）】
+- category: &quot;E&quot;（固定）
+- tags: string[] 自由标签，2-5 个短词
+- type: &quot;avoidance&quot; | &quot;practice&quot;
+- nature: &quot;objective&quot; | &quot;subjective&quot;
+- trigger: string 何时生效，通用场景描述
+- wrong_pattern: string 错误做法关键字；不适用填 &quot;&quot;
+- correct_pattern: string 正确做法一句话
+- reasoning: string 一句话解释原因
+
+【严格要求】
+1. 只输出一个 JSON 数组（在 ```json fenced block 里），数组元素是 0-3 个知识条目对象
+2. 如果所有信号都太弱或太私人化，输出空数组 `[]`
+3. 不要输出除 JSON 以外的任何文字
+
+【示例输出】
+```json
+[
+  {
+    &quot;category&quot;: &quot;E&quot;,
+    &quot;tags&quot;: [&quot;vitest&quot;, &quot;windows&quot;, &quot;concurrency&quot;],
+    &quot;type&quot;: &quot;avoidance&quot;,
+    &quot;nature&quot;: &quot;objective&quot;,
+    &quot;trigger&quot;: &quot;在 Windows 环境下配置 vitest&quot;,
+    &quot;wrong_pattern&quot;: &quot;fileParallelism: true&quot;,
+    &quot;correct_pattern&quot;: &quot;fileParallelism: false&quot;,
+    &quot;reasoning&quot;: &quot;Windows 下 vitest 并发模式会导致 OOM，必须顺序跑&quot;
+  }
+]
+```
+          </div>
+        </div>
+      
+        <div style="padding:7px 0;border-bottom:1px solid var(--border)">
+          <div style="display:flex;justify-content:space-between;gap:8px;font-size:12px">
+            <span style="color:var(--text);font-weight:600">inject · empty</span>
+            <span style="color:var(--cyan);font-weight:700">2ms</span>
+          </div>
+          <div style="font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+            你是知识提取器。任务是把下面这段上下文（用户在 Claude Code 会话中纠正了 AI 的行为）提炼成一条结构化的&quot;知识条目&quot;，供团队 AI 未来参考。
+
+【上下文】
+信号权重: 0.90
+```
+[信号: explicit_denial, 权重: 0.90]
+用户纠正: &lt;task-notification&gt;
+&lt;task-id&gt;a346c5e89e58e47b0&lt;/task-id&gt;
+&lt;tool-use-id&gt;toolu_01K2ry5aibusHwa4tWHpZvDw&lt;/tool-use-id&gt;
+&lt;output-file&gt;/private/tmp/claude-501/-Users-m1-projects-TeamBrain--claude-worktrees-dev-codex-pr/3b9933f4-3517-4c4b-a1b5-418ff3dba9ed/tasks/a346c5e89e58e47b0.output&lt;/output-file&gt;
+&lt;status&gt;completed&lt;/status&gt;
+&lt;summary&gt;Agent &quot;Wave6-A3: MCP+Cursor+Trae compilers→VERIFIED&quot; completed&lt;/summary&gt;
+&lt;result&gt;Not logged in · Please run /login&lt;/result&gt;
+&lt;usage&gt;&lt;total_tokens&gt;1384&lt;/total_tokens&gt;&lt;tool_uses&gt;48&lt;/tool_uses&gt;&lt;duration_ms&gt;504384&lt;/duration_ms&gt;&lt;/usage&gt;
+&lt;/task-notification&gt;
+```
+
+【输出字段】
+- category: &quot;C&quot; | &quot;E&quot; | &quot;S&quot; | &quot;K&quot;
+  - C 代码层（语法、类型、API 用法）
+  - E 工程层（架构、依赖、工具链）
+  - S 策略层（任务分解、实现顺序、取舍）
+  - K 认知层（用户偏好、心智模型、协作方式）
+- tags: string[]  自由标签，2-5 个短词；英文或中文均可（如 &quot;http-client&quot; &quot;architecture&quot;）
+- type: &quot;avoidance&quot; | &quot;practice&quot;
+  - avoidance 避坑（&quot;不要 X&quot;）——**必须**有可字面匹配的 wrong_pattern 关键词
+  - practice 最佳实践（&quot;就该 X&quot;）——wrong_pattern **必须留空**
+  ⚠️ 若有可字面匹配的反模式，一律选 avoidance。严禁 practice + wrong_pattern 组合，
+      否则 validator L0 会拒收 (practice_must_not_have_wrong_pattern /
+      avoidance_must_have_wrong_pattern)。
+- nature: &quot;objective&quot; | &quot;subjective&quot;
+  - objective 客观可验证（语法错误、API 行为）
+  - subjective 主观偏好（架构选型、风格）
+- trigger: string  何时这条知识生效。一句话，描述场景，不包含具体做法
+- wrong_pattern: string  **关键规则**——**可字面 substring 匹配**的通用关键词。
+  **元原则** (3 条必须全中)：
+    (a) 字面稳定 —— 跨项目跨团队，这串字符含义相同
+    (b) 可 substring 命中 —— 在代码/命令/配置文本里会原样出现
+    (c) 脱离上下文仍指向问题 —— 看到这串字符就知道踩坑，不必懂周围含义
+  **允许的 18 类**（A 代码/语言、B 基础设施/命令、C 配置/环境、D 数据/查询、E 安全/质量）：
+    A1 依赖/包/模块名：`moment` `jQuery` `@reduxjs/toolkit` `lodash` `request`
+    A2 API/方法/属性： `localStorage.getItem` `document.write` `eval(` `innerHTML =` `XMLHttpRequest`
+    A3 语法/关键字：   `var ` `== ` `!= ` `new Function(` `with (`
+    A4 类型系统标记：  `as any` `: any` `@ts-ignore` `@ts-nocheck` `Record&lt;string, any&gt;`
+    A5 框架反模式：    `dangerouslySetInnerHTML` `key={index}` `v-html` `ng-bind-html`
+    B1 Git：           `git push --force` `git commit --no-verify` `git reset --hard`
+    B2 包管理：        `npm install -g` `pip install --user` `:latest`
+    B3 Shell 危险：    `rm -rf /` `chmod 777` `chmod -R 777` `sudo rm` `umask 000` `eval $`
+    B4 Docker：        `FROM .*:latest` (字面 `:latest`) `USER root` `privileged: true` `--cap-add=ALL`
+    B5 Kubernetes：    `hostNetwork: true` `runAsUser: 0` `hostPath:` `privileged: true`
+    C1 配置键：        `allowJs` `strict: false` `noImplicitAny: false` `skipLibCheck: true`
+    C2 环境变量：      `NODE_ENV=development` `DEBUG=*` `DISABLE_AUTH=`
+    C3 URL/网络：      `http://` (明文) `localhost:` `0.0.0.0/0` 硬编码 IP
+    D1 SQL 反模式：    `SELECT *` `DROP TABLE` `DELETE FROM ` (无 WHERE) `OR 1=1` `TRUNCATE `
+    D2 正则风险：      `.*.*.*` (连续通配) `(.+)+` (回溯炸弹)
+    E1 凭证/密钥前缀： `AKIA` (AWS) `ghp_` (GitHub PAT) `sk_live_` (Stripe) `SG.` (SendGrid)
+    E2 XSS/反序列化：  `innerHTML =` `document.write(` `eval(` `new Function(` `javascript:` `pickle.loads(`
+    E3 测试/日志残留： `.only(` `.skip(` `xdescribe(` `fdescribe(` `console.log(` (prod) `print(` (prod)
+  多个候选用 `|` 分隔，每段 ≥3 字符，≤40 字符。
+  **四条铁律**：
+    1. 最长公共片段 —— 宁要 `npm install` 一个短词，不要 `npm install --save moment^2.29` 完整行
+    2. pipe 分多 variant —— 同概念多写法 `innerHTML =|innerHTML+=`
+    3. 避免过度通用 token —— 禁 `if`/`for`/`function`/`return`/`log(`（单独）
+    4. 不写正则 —— matcher 只做 substring，`\d+` 不生效，用最长字面前缀
+  **禁止**：
+    ❌ 整句自然语言（&quot;demote=0 时...&quot; &quot;AI 没先查...&quot;）
+    ❌ 项目专属路径/函数（`packages/...`、`@teamagent/...`、`tierFromDemerit`）
+    ❌ 抽象动作描述（&quot;直接 emit 新 source 值&quot;）
+    ❌ 超长字面量（&gt;40 字符一般太具体）
+    ❌ 测试代码片段（`tierFromDemerit(4, 'stable')`）
+  找不到通用关键词时，type 改 &quot;practice&quot; 并留空 wrong_pattern——而非硬编入具体字面量。
+- correct_pattern: string  正确做法的关键字/句式或一句话建议
+- reasoning: string  一句话解释为什么。包含&quot;为什么错&quot;和&quot;为什么对&quot;
+
+【示例】
+示例输入：用户说 &quot;不用 axios，用 fetch，项目要零依赖&quot;，AI 之前建议 axios。
+示例输出：
+```json
+{
+  &quot;category&quot;: &quot;E&quot;,
+  &quot;tags&quot;: [&quot;http-client&quot;, &quot;dependency&quot;, &quot;tech-choice&quot;],
+  &quot;type&quot;: &quot;avoidance&quot;,
+  &quot;nature&quot;: &quot;subjective&quot;,
+  &quot;trigger&quot;: &quot;需要发起 HTTP 请求&quot;,
+  &quot;wrong_pattern&quot;: &quot;axios&quot;,
+  &quot;correct_pattern&quot;: &quot;fetch&quot;,
+  &quot;reasoning&quot;: &quot;项目偏好零依赖，fetch 在 Node 18+ 原生可用，无需额外包&quot;
+}
+```
+
+示例输入：用户说 &quot;这思路不对，先写测试再写实现&quot;，AI 直接开始写实现代码。
+示例输出：
+```json
+{
+  &quot;category&quot;: &quot;S&quot;,
+  &quot;tags&quot;: [&quot;tdd&quot;, &quot;workflow&quot;],
+  &quot;type&quot;: &quot;practice&quot;,
+  &quot;nature&quot;: &quot;subjective&quot;,
+  &quot;trigger&quot;: &quot;开始实现新功能前&quot;,
+  &quot;wrong_pattern&quot;: &quot;&quot;,
+  &quot;correct_pattern&quot;: &quot;先写失败测试再写实现（TDD）&quot;,
+  &quot;reasoning&quot;: &quot;团队采用 TDD 节奏：红→绿→重构，能减少回归并强制接口先行&quot;
+}
+```
+
+示例输入：用户说 &quot;不对&quot; 但没给替代方案，上下文也看不出原因。
+示例输出：
+```json
+null
+```
+
+【反例——不要这样做】
+❌ 错误：wrong_pattern = &quot;AI 直接跑 npm install moment, 没先查项目有没有用别的时间库&quot;
+✅ 正确：wrong_pattern = &quot;moment&quot;   （只要库名本身，整句描述进 reasoning）
+
+❌ 错误：wrong_pattern = &quot;直接在 pipeline 里 emit 新 source 值&quot;
+✅ 正确：type 改 &quot;practice&quot;，wrong_pattern 留空    （找不到通用关键词时别硬写）
+
+❌ 错误：wrong_pattern = &quot;packages/core/src/scorer.ts 未判空&quot;
+✅ 正确：wrong_pattern = &quot;&quot;（项目内部路径无普适价值，type=&quot;practice&quot;）
+
+【严格要求】
+1. 只输出**一段** JSON（在 ```json fenced block 里）或字面量 `null`
+2. 不要在 JSON 前后添加任何解释文字
+3. 如果上下文信息不足以提取出有用的知识（例如用户只说&quot;不对&quot;但没给替代、或纠正内容太私人化），输出 `null`
+4. trigger 要写得通用一些，让未来不同任务里都能匹配；不要把具体实现细节写进 trigger
+5. wrong_pattern 必须是**可跨项目复用**的库名/API 符号/命令/配置键名。整句描述、项目内部路径、抽象动作描述一律不接受——找不到时就改 type=&quot;practice&quot; 留空
+          </div>
+        </div>
+      
+    </div>
+  </div>
+
+  <!-- Top rules + new rules -->
+  <div class="section-title">🏆 规则详情</div>
+  <div class="grid-2">
+
+    <!-- Top hit rules -->
+    <div class="card">
+      <div class="card-title">🔥 命中次数最多的规则</div>
+      
+    </div>
+
+    <!-- New rules -->
+    <div class="card">
+      <div class="card-title">✨ 最近 7 天新学到的规则</div>
+      
+        <div class="new-rule">
+          <div class="new-rule-trigger">当任务或 API 调用返回结果时验证完成状态</div>
+          <div class="new-rule-meta">
+            <span class="tier-badge" style="background:#06b6d422;color:#06b6d4;border:1px solid #06b6d444">⭐ canonical</span>
+            <span class="cat-badge" style="background:#ec489922;color:#ec4899">S 策略层</span>
+            <span class="rule-conf">置信度 90%</span>
+            <span class="new-rule-time">05/06 00:47</span>
+          </div>
+        </div>
+      
+        <div class="new-rule">
+          <div class="new-rule-trigger">处理异步任务完成通知，准备推进后续任务前</div>
+          <div class="new-rule-meta">
+            <span class="tier-badge" style="background:#06b6d422;color:#06b6d4;border:1px solid #06b6d444">⭐ canonical</span>
+            <span class="cat-badge" style="background:#8b5cf622;color:#8b5cf6">K 认知层</span>
+            <span class="rule-conf">置信度 90%</span>
+            <span class="new-rule-time">05/06 00:47</span>
+          </div>
+        </div>
+      
+        <div class="new-rule">
+          <div class="new-rule-trigger">读取后台任务完成通知后评估下一步工作</div>
+          <div class="new-rule-meta">
+            <span class="tier-badge" style="background:#06b6d422;color:#06b6d4;border:1px solid #06b6d444">⭐ canonical</span>
+            <span class="cat-badge" style="background:#8b5cf622;color:#8b5cf6">K 认知层</span>
+            <span class="rule-conf">置信度 90%</span>
+            <span class="new-rule-time">05/06 00:47</span>
+          </div>
+        </div>
+      
+        <div class="new-rule">
+          <div class="new-rule-trigger">完成任何消息输出前</div>
+          <div class="new-rule-meta">
+            <span class="tier-badge" style="background:#06b6d422;color:#06b6d4;border:1px solid #06b6d444">⭐ canonical</span>
+            <span class="cat-badge" style="background:#ec489922;color:#ec4899">S 策略层</span>
+            <span class="rule-conf">置信度 90%</span>
+            <span class="new-rule-time">05/05 19:17</span>
+          </div>
+        </div>
+      
+        <div class="new-rule">
+          <div class="new-rule-trigger">用户问 'list all product features' 或 'show all features including not verified and not implemented' 或 'complete product feature list'</div>
+          <div class="new-rule-meta">
+            <span class="tier-badge" style="background:#06b6d422;color:#06b6d4;border:1px solid #06b6d444">⭐ canonical</span>
+            <span class="cat-badge" style="background:#8b5cf622;color:#8b5cf6">K 认知层</span>
+            <span class="rule-conf">置信度 90%</span>
+            <span class="new-rule-time">05/05 19:17</span>
+          </div>
+        </div>
+      
+        <div class="new-rule">
+          <div class="new-rule-trigger">任何消息即将停止输出前</div>
+          <div class="new-rule-meta">
+            <span class="tier-badge" style="background:#06b6d422;color:#06b6d4;border:1px solid #06b6d444">⭐ canonical</span>
+            <span class="cat-badge" style="background:#ec489922;color:#ec4899">S 策略层</span>
+            <span class="rule-conf">置信度 90%</span>
+            <span class="new-rule-time">05/05 19:16</span>
+          </div>
+        </div>
+      
+        <div class="new-rule">
+          <div class="new-rule-trigger">需要执行代码修复、文档更新等多步实现类任务时</div>
+          <div class="new-rule-meta">
+            <span class="tier-badge" style="background:#06b6d422;color:#06b6d4;border:1px solid #06b6d444">⭐ canonical</span>
+            <span class="cat-badge" style="background:#ec489922;color:#ec4899">S 策略层</span>
+            <span class="rule-conf">置信度 90%</span>
+            <span class="new-rule-time">05/05 19:16</span>
+          </div>
+        </div>
+      
+        <div class="new-rule">
+          <div class="new-rule-trigger">生成任何回复消息时，特别是完成工作或给出结论后</div>
+          <div class="new-rule-meta">
+            <span class="tier-badge" style="background:#06b6d422;color:#06b6d4;border:1px solid #06b6d444">⭐ canonical</span>
+            <span class="cat-badge" style="background:#ec489922;color:#ec4899">S 策略层</span>
+            <span class="rule-conf">置信度 90%</span>
+            <span class="new-rule-time">05/05 19:16</span>
+          </div>
+        </div>
+      
+    </div>
+  </div>
+
+  <!-- High confidence + At risk -->
+  <div class="grid-2" style="margin-top:16px">
+
+    <!-- High confidence rules -->
+    <div class="card">
+      <div class="card-title">⭐ 高置信度规则 Top 6</div>
+      
+        <div class="progress-wrap">
+          <div class="progress-label">
+            <span class="name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px" title="收到包含 <local-command-caveat> 标签的消息时">1. 收到包含 <local-command-caveat> 标签的消息时</span>
+            <span class="val">100% · <span class="tier-badge" style="background:#06b6d422;color:#06b6d4;border:1px solid #06b6d444">⭐ canonical</span></span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width:100%;background:linear-gradient(90deg,var(--green),var(--cyan))"></div>
+          </div>
+        </div>
+      
+        <div class="progress-wrap">
+          <div class="progress-label">
+            <span class="name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px" title="被问到 PRESHIP 相关问题（'什么是 PRESHIP'、'列出已验证功能'、或消息含 PRESHIP 关键字）时">2. 被问到 PRESHIP 相关问题（'什么是 PRESHIP'、'列出已验证功能'、或消息含 PRESHIP 关键字）时</span>
+            <span class="val">95% · <span class="tier-badge" style="background:#06b6d422;color:#06b6d4;border:1px solid #06b6d444">⭐ canonical</span></span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width:95%;background:linear-gradient(90deg,var(--green),var(--cyan))"></div>
+          </div>
+        </div>
+      
+        <div class="progress-wrap">
+          <div class="progress-label">
+            <span class="name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px" title="用户提到一个你没见过或不完全确定的概念、库名、API、术语时">3. 用户提到一个你没见过或不完全确定的概念、库名、API、术语时</span>
+            <span class="val">95% · <span class="tier-badge" style="background:#06b6d422;color:#06b6d4;border:1px solid #06b6d444">⭐ canonical</span></span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width:95%;background:linear-gradient(90deg,var(--green),var(--cyan))"></div>
+          </div>
+        </div>
+      
+        <div class="progress-wrap">
+          <div class="progress-label">
+            <span class="name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px" title="subagent 执行远程实验遇到凭据/环境缺失">4. subagent 执行远程实验遇到凭据/环境缺失</span>
+            <span class="val">95% · <span class="tier-badge" style="background:#06b6d422;color:#06b6d4;border:1px solid #06b6d444">⭐ canonical</span></span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width:95%;background:linear-gradient(90deg,var(--green),var(--cyan))"></div>
+          </div>
+        </div>
+      
+        <div class="progress-wrap">
+          <div class="progress-label">
+            <span class="name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px" title="用户要求介绍系统/项目情况时需判断受众层级">5. 用户要求介绍系统/项目情况时需判断受众层级</span>
+            <span class="val">95% · <span class="tier-badge" style="background:#06b6d422;color:#06b6d4;border:1px solid #06b6d444">⭐ canonical</span></span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width:95%;background:linear-gradient(90deg,var(--green),var(--cyan))"></div>
+          </div>
+        </div>
+      
+        <div class="progress-wrap">
+          <div class="progress-label">
+            <span class="name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px" title="需要完成功能或解决问题时">6. 需要完成功能或解决问题时</span>
+            <span class="val">95% · <span class="tier-badge" style="background:#06b6d422;color:#06b6d4;border:1px solid #06b6d444">⭐ canonical</span></span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width:95%;background:linear-gradient(90deg,var(--green),var(--cyan))"></div>
+          </div>
+        </div>
+      
+    </div>
+
+    <!-- At risk rules -->
+    <div class="card">
+      <div class="card-title" style="color:var(--amber)">⚠️ 高惩罚分规则（需关注）</div>
+      
+      <div style="font-size:11px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
+        💡 demerit ≥ 50 进入 dormant 状态，会自动指数衰减恢复
+      </div>
+    </div>
+  </div>
+
+  <!-- Category breakdown + Recent activity -->
+  <div class="section-title">📋 分类 & 活动</div>
+  <div class="grid-2">
+
+    <!-- Category breakdown -->
+    <div class="card">
+      <div class="card-title">🏷️ 规则分类分布</div>
+      
+          <div class="progress-wrap">
+            <div class="progress-label">
+              <span class="name"><span class="cat-badge" style="background:#8b5cf622;color:#8b5cf6">K 认知层</span> 认知层 — AI 行为模式、决策</span>
+              <span class="val">158 条 (61%)</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:61%;background:var(--purple)"></div></div>
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-label">
+              <span class="name"><span class="cat-badge" style="background:#ec489922;color:#ec4899">S 策略层</span> 策略层 — 项目流程、方法论</span>
+              <span class="val">81 条 (31%)</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:31%;background:var(--pink)"></div></div>
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-label">
+              <span class="name"><span class="cat-badge" style="background:#3b82f622;color:#3b82f6">E 工程层</span> 工程层 — 代码架构、构建、测试</span>
+              <span class="val">16 条 (6%)</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:6%;background:var(--blue)"></div></div>
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-label">
+              <span class="name"><span class="cat-badge" style="background:#f9731622;color:#f97316">C 代码层</span> 代码层 — 具体代码规范</span>
+              <span class="val">3 条 (1%)</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:1%;background:var(--orange)"></div></div>
+          </div>
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+          <span style="color:var(--muted)">personal 规则</span><span style="color:var(--cyan);font-weight:700">202 条</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px">
+          <span style="color:var(--muted)">global 规则</span><span style="color:var(--purple);font-weight:700">56 条</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Event types -->
+    <div class="card">
+      <div class="card-title">📡 事件系统统计</div>
+      <div class="event-grid">
+        
+          <div class="event-item">
+            <div class="event-kind">✅ 规则检查通过</div>
+            <div class="event-count" style="color:var(--green)">1861</div>
+          </div>
+        
+          <div class="event-item">
+            <div class="event-kind">🤝 AI 接受规则</div>
+            <div class="event-count" style="color:var(--cyan)">62</div>
+          </div>
+        
+          <div class="event-item">
+            <div class="event-kind">⚠️ 触发规则警告</div>
+            <div class="event-count" style="color:var(--amber)">7</div>
+          </div>
+        
+          <div class="event-item">
+            <div class="event-kind">⚖️ 校准触发</div>
+            <div class="event-count" style="color:var(--purple)">25</div>
+          </div>
+        
+          <div class="event-item">
+            <div class="event-kind">❌ AI 违反规则</div>
+            <div class="event-count" style="color:var(--red)">7</div>
+          </div>
+        
+          <div class="event-item">
+            <div class="event-kind">📊 执行结果</div>
+            <div class="event-count" style="color:var(--blue)">7</div>
+          </div>
+        
+      </div>
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:6px">最近事件（5 条高频规则）</div>
+        
+          <div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border)">
+            <span style="font-size:11px;color:var(--amber);font-weight:700;width:20px">#1</span>
+            <span style="font-size:12px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">main session 中需要查询 git history 或执行数据分析工作时</span>
+            <span style="font-size:11px;color:var(--cyan);font-weight:700">64次</span>
+          </div>
+        
+          <div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border)">
+            <span style="font-size:11px;color:var(--amber);font-weight:700;width:20px">#2</span>
+            <span style="font-size:12px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">需要执行任务或分派工作时</span>
+            <span style="font-size:11px;color:var(--cyan);font-weight:700">15次</span>
+          </div>
+        
+          <div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border)">
+            <span style="font-size:11px;color:var(--amber);font-weight:700;width:20px">#3</span>
+            <span style="font-size:12px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">在 JavaScript/TypeScript 正则里用 \\b 做中文关键词匹配的边界检查</span>
+            <span style="font-size:11px;color:var(--cyan);font-weight:700">9次</span>
+          </div>
+        
+          <div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border)">
+            <span style="font-size:11px;color:var(--amber);font-weight:700;width:20px">#4</span>
+            <span style="font-size:12px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">AI 准备停止输出任何消息时</span>
+            <span style="font-size:11px;color:var(--cyan);font-weight:700">6次</span>
+          </div>
+        
+          <div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border)">
+            <span style="font-size:11px;color:var(--amber);font-weight:700;width:20px">#5</span>
+            <span style="font-size:12px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">验证/测试输出 PASS 后准备结束工作时</span>
+            <span style="font-size:11px;color:var(--cyan);font-weight:700">6次</span>
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <!-- System health summary -->
+  <div class="section-title">🎯 系统健康总结</div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">💪 系统成就</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <div style="width:32px;height:32px;border-radius:8px;background:var(--cyan)22;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🧠</div>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--cyan)">自进化知识库</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px">已积累 258 条经验，8 条本周新学</div>
+            </div>
+          </div>
+        
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <div style="width:32px;height:32px;border-radius:8px;background:var(--green)22;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🛡️</div>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--green)">规则主动防护</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px">1868 次工具调用被检查，1861 次通过，7 次触发警告</div>
+            </div>
+          </div>
+        
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <div style="width:32px;height:32px;border-radius:8px;background:var(--amber)22;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">⭐</div>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--amber)">高质量规则</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px">243 条 Canonical + 0 条 Enforced 规则验证通过</div>
+            </div>
+          </div>
+        
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <div style="width:32px;height:32px;border-radius:8px;background:var(--purple)22;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">📈</div>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--purple)">AI 服从率</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px">100% 高服从率，AI 忽略规则仅 7 次</div>
+            </div>
+          </div>
+        
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <div style="width:32px;height:32px;border-radius:8px;background:var(--orange)22;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🔄</div>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--orange)">弹性恢复</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px">demerit 衰减机制保护高质量规则，dormant 规则自动复活</div>
+            </div>
+          </div>
+        
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <div style="width:32px;height:32px;border-radius:8px;background:var(--blue)22;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🌐</div>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--blue)">多层知识库</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px">personal 202 条 + global 56 条，两层独立存储</div>
+            </div>
+          </div>
+        
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📌 关键路径规则预览</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px">以下规则是系统核心护栏，命中次数最多</div>
+      
+      <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);line-height:1.8">
+        <div>⚡ 每次工具调用前自动检查所有活跃规则</div>
+        <div>🔄 每次会话结束自动校准置信度和 demerit</div>
+        <div>📝 AI 每次接受/忽略规则都会被记录分析</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    TeamAgent · 自进化 AI 规则引擎 · 生成时间 2026/5/6 00:54:14 · 258 条规则 · 1868 次拦截
+  </div>
+</div>
+</body>
+</html>

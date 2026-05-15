@@ -1,0 +1,94 @@
+node_modules/
+dist/
+.DS_Store
+*.log
+# evidence files under docs/plans/ are commit-worthy proof artifacts;
+# the *.log umbrella above must not swallow them.
+!docs/plans/**/*.log
+.env
+.env.local
+coverage/
+.install-log
+*.tsbuildinfo
+packages/*/.teamagent/
+.teamagent/
+.worktrees/
+.claude/worktrees/
+.codex/worktrees/
+packages/benchmark/bench-report.json
+packages/benchmark/bench-report.md
+packages/benchmark/bench-*.json
+packages/benchmark/bench-*.md
+.claude/scheduled_tasks.lock
+.claude/laziness/
+# skill-creator workspaces (eval JSON, run_loop logs, snapshots — regenerated per run).
+.claude/skills/*-workspace/
+# pnpm pack build artifacts
+packages/*/*.tgz
+# reclassify command outputs (timestamped, regenerated per run)
+scripts/out/reclassify-*
+# claudefast stream-json smoke outputs (timestamped, regenerated per run)
+scripts/out/claudefast-stream-json/
+# Codex raw-chat verification outputs (timestamped, regenerated per run)
+scripts/out/codex-raw-chat-*/
+# CLAUDE.md compile-hook write-failure leftovers
+CLAUDE.md.tmp-*
+# Lighthouse CI run artifacts (timestamped, regenerated per run)
+apps/landing/.lighthouseci/
+# Machine-local Claude Code settings (contains absolute hook paths specific to each dev's machine).
+# Each developer runs `teamagent install-hook` after clone to generate their own.
+.claude/settings.local.json
+# Timestamped backups created by the hook installer when rewriting settings.local.json.
+# Matches both the .bak-<iso-ts> form (current) and the older .bak.<unix-epoch> form.
+.claude/settings.local.json.bak*
+# Xenova / Hugging Face model caches (downloaded on first embedder run; per-package).
+packages/*/.cache/
+# Chaos QA verification scratch scripts (paired with BUGS.md, not formal tests).
+chaos-verify*.mjs
+# FASTPROBE timestamped scratch dirs (raw .result/.jsonl from claudefast probes; regenerated per run).
+.fastprobe/
+# General scratch dirs (live-capture transcripts, per-run probe outputs; see ADR-0012).
+.scratch/
+# FIXEDFLOW driver runtime state (machine-local; per-iter token/iter counters
+# written by the manually-invoked /fixed-flow-driver skill).
+# See docs/FIXEDFLOW.md "driver 行为细则".
+.fixedflow/
+# DOGFOOD verify capture (regenerated each `bash docs/dogfood/verify-canned-answer.sh` run).
+docs/dogfood/.last-verify.out
+# DOGFOOD active-sandbox state file (written by scripts/dogfood.sh; per-machine).
+.dogfood/
+# VERIFY judge-harness raw stdout/stderr/coverage/judge.json (transient evidence; bundle into PR if needed).
+.judge/
+# REVERIFICATION evidence (transient raw stdout/responses/JSON captured by the by-hand /reverification skill; regenerated per invocation).
+.reverification/
+# feature-verify-kit LLM output (regenerated per run by verify-claude-stream-json.sh).
+docs/feature-verify-kit/runs/
+.gstack/
+.agents/skills/gstack/
+.sandbox/
+# M5 viral sync 钩子由 `teamagent m5-bootstrap --apply` 在每台机器本地生成；
+# 启用方式：git config --local core.hooksPath .githooks
+.githooks/
+docs/bugreport/.last-verify.out
+docs/postpr/.last-verify.out
+docs/fastprobe/.last-verify.out
+docs/fastprobe/.last-judge.out
+docs/fastprobe/.last-judge.json
+docs/fastprobe/.last-judge-prompt.txt
+docs/project-tools/.last-verify.out
+docs/project-tools/.last-judge.out
+docs/project-tools/.last-judge.json
+docs/project-tools/.last-judge-prompt.txt
+docs/response-language/.last-verify.out
+docs/response-language/.last-verify.clean.out
+docs/github-account/.last-verify.out
+docs/github-account/.last-judge.out
+docs/github-account/.last-judge.json
+docs/github-account/.last-judge-prompt.txt
+docs/gstack-bin/.last-verify.out
+docs/gstack-bin/.last-judge.out
+docs/gstack-bin/.last-judge.json
+docs/gstack-bin/.last-judge-prompt.txt
+
+# Judge harness evidence dirs (timestamped, regenerated per run; paired with docs/plans/<issue>/judge.md).
+.judge/

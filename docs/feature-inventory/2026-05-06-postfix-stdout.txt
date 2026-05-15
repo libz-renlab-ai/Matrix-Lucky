@@ -1,0 +1,84 @@
+呷呷~ 🦆 鸭鸭来给你汇报 TeamBrain 的全部 49 个产品功能啦！
+
+---
+
+## TeamBrain 产品功能全景（49 项全部 VERIFIED）
+
+### 核心学习闭环（1-8）
+1. **产品入口能打开** — 鸭总能看到菜单，不是空壳
+2. **最小学习闭环** — 记录→编译→归因，端到端可演示
+3. **AI 提前预警** — 已知错误走之前就拦住
+4. **纠正一次下次记住** — 教训变经验，自动复用
+5. **知识会自动进化** — 靠谱的经验越来越可信，过时的降级
+6. **看得见的统计** — 学了多少、哪层、最近加了什么
+7. **主动录坑** — 不用等 AI 犯错，用户自己可以先记坑
+8. **安全沙箱** — 改动先在隔离环境试，不污染主工作区
+
+### 自动捕获与提取（9-12）
+9. **每次会话自动捕纠正** — Stop hook 扫描 AI 叙述
+10. **真实会话提取** — 100% 召回率
+11. **JSONL 形状兼容** — 各种会话格式都能处理
+12. **Calibrator 发出调整事件** — 用户拒绝信号触发
+
+### 校准器 v2（13-15）
+13. **calibrator.adjustment 事件** — 置信度动态调整
+14. **Wilson LB + 五层置信带** — 更精准的评分
+15. **validator.failure 事件** — 坏规则模式检测
+
+### 规则质量与匹配（16-20）
+16. **相同模式检测** — 防止重复规则
+17. **置信度范围检测** — 超出合理范围的警告
+18. **缺失字段检测** — 规则不完整时报错
+19. **Embedding 冲突检测** — 语义重复规则识别
+20. **规则质量 canned-answer 验证** — 有据可查
+
+### 匹配器增强（21-23）
+21. **B-055 单词边界守卫** — 防止 wrong_pattern 误触发
+22. **文件类型/路径 glob 过滤** — 精准匹配
+23. **三层知识作用域** — 个人/团队/全局
+
+### 团队知识共享（24-28）
+24. **团队知识导出/导入** — 项目间流转
+25. **跨机器同步** — `teamagent sync push/pull`
+26. **sync push 写远程 git 分支**
+27. **sync pull 合并远程规则**
+28. **PII 脱敏** — API key、JWT、电话、信用卡、AWS key 全覆盖
+
+### PII 与安全（29-30）
+29. **团队共享前自动脱敏** — 数据安全
+30. **PreToolUse hook 拦截** — 工具调用前审查
+
+### Hook 系统（31-33）
+31. **Stop hook 扫描回避模式** — 检测 AI 叙事中的问题
+32. **AttributionBus 发出归因事件** — 结构化记录
+33. **MCP server `check_pitfall`** — 握手+工具调用
+
+### MCP 与 IDE（34-37）
+34. **`check_pitfall` 调用核心匹配器** — 返回匹配规则
+35. **Cursor `.cursorrules` 编译器** — 导出 top-N 规则
+36. **`teamagent doctor` 诊断** — hook 注册状态
+37. **`teamagent doctor` 插件同步状态**
+
+### 诊断系统（38-40）
+38. **hook 注册检测** — 安装后正确识别
+39. **MCP 可达性检测** — 服务状态
+40. **A/B benchmark 测试床** — 有规则 vs 无规则对比
+
+### Benchmark 系统（41-43）
+41. **Arm-A vs Arm-B 回避率指标** — 量化规则效果
+42. **judge.json 输出** — exit_code + metrics + evidence_dir
+43. **Walking skeleton** — `pnpm teamagent skeleton-demo`
+
+### CLI 命令（44-49）
+44. **`teamagent pitfall`** — 交互+非交互录坑
+45. **`teamagent stats`** — 知识统计
+46. **`teamagent verify`** — 特性验证运行器
+47. **`teamagent calibrate`** — 校准触发器
+48. **`teamagent analyze`** — 会话分析
+49. **`teamagent review`** — PR 周期审查
+50. **`teamagent install-hook` / `uninstall-hook`** — hook 管理
+51. **`teamagent mcp-server`** — stdio MCP 服务入口
+
+---
+
+呷呷~ 鸭鸭说：以上 49 项全部 VERIFIED，没有 WIP、没有 PLANNED、没有 MISSING！每一个都有 judge harness 或 verify 脚本保证质量哦 (oωo) 🦆

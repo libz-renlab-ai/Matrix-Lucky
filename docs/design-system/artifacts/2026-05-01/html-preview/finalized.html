@@ -1,0 +1,928 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TeamAgent Design Preview: Three Cases</title>
+  <meta name="color-scheme" content="light dark">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-sans: "IBM Plex Sans", "Noto Sans SC", sans-serif;
+      --font-mono: "IBM Plex Mono", "Noto Sans Mono CJK SC", monospace;
+      --workbench: #f8fafc;
+      --archive: #fafaf9;
+      --console: #0b0f14;
+      --panel-dark: #111827;
+      --surface-dark: #1f2937;
+      --panel-light: #ffffff;
+      --text: #101820;
+      --text-dark: #e5e7eb;
+      --muted: #64748b;
+      --line: #d9e0e7;
+      --primary: #0f766e;
+      --primary-strong: #0d9488;
+      --success: #15803d;
+      --warning: #b45309;
+      --danger: #b91c1c;
+      --info: #2563eb;
+      --review: #a3e635;
+      --radius-xs: 2px;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --shadow-panel: 0 18px 60px rgba(15, 23, 42, .12);
+      --max: 1240px;
+      color: var(--text);
+      background: var(--workbench);
+      font-family: var(--font-sans);
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--workbench);
+      color: var(--text);
+      letter-spacing: 0;
+    }
+    a { color: inherit; text-decoration: none; }
+    button, a, [contenteditable="true"] { -webkit-tap-highlight-color: transparent; }
+    button:focus-visible, a:focus-visible, [contenteditable="true"]:focus-visible {
+      outline: 3px solid rgba(13, 148, 136, .35);
+      outline-offset: 3px;
+    }
+    [contenteditable="true"] { border-radius: var(--radius-xs); }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid rgba(217, 224, 231, .9);
+      background: rgba(248, 250, 252, .92);
+      backdrop-filter: blur(14px);
+    }
+    .nav {
+      max-width: var(--max);
+      margin: 0 auto;
+      min-height: 64px;
+      padding: 10px 24px;
+      display: grid;
+      grid-template-columns: 190px 1fr auto;
+      gap: 20px;
+      align-items: center;
+    }
+    .brand {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 10px;
+      align-items: center;
+      font-weight: 700;
+    }
+    .brand-mark {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border-radius: var(--radius-md);
+      background: var(--console);
+      color: var(--review);
+      font-family: var(--font-mono);
+      font-size: 14px;
+    }
+    .segments {
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: #fff;
+    }
+    .segments a {
+      min-height: 36px;
+      padding: 8px 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-sm);
+      color: #334155;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .segments a:hover { background: #ecfdf5; color: #0f766e; }
+    .nav-cta {
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 14px;
+      border-radius: var(--radius-md);
+      background: var(--console);
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .section {
+      min-height: 100svh;
+      padding: 78px 24px 72px;
+      display: grid;
+      align-items: center;
+    }
+    .inner {
+      max-width: var(--max);
+      width: 100%;
+      margin: 0 auto;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 18px;
+      color: var(--primary);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 {
+      max-width: 680px;
+      font-size: clamp(36px, 6vw, 64px);
+      line-height: 1.02;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+    h2 {
+      font-size: clamp(30px, 4.4vw, 52px);
+      line-height: 1.05;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+    h3 {
+      font-size: 18px;
+      line-height: 1.25;
+      font-weight: 700;
+    }
+    .lead {
+      max-width: 610px;
+      margin-top: 18px;
+      color: #475569;
+      font-size: 18px;
+      line-height: 1.58;
+    }
+    .actions {
+      margin-top: 28px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .primary-btn, .secondary-btn {
+      min-height: 44px;
+      padding: 0 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-md);
+      font-weight: 700;
+      border: 1px solid transparent;
+    }
+    .primary-btn { background: var(--primary); color: #fff; }
+    .secondary-btn { background: #fff; color: #0f172a; border-color: var(--line); }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(320px, .72fr) minmax(520px, 1.08fr);
+      gap: 42px;
+      align-items: center;
+    }
+    .proof-row {
+      margin-top: 30px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      max-width: 660px;
+    }
+    .proof {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: #fff;
+      padding: 12px;
+    }
+    .proof strong {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 13px;
+    }
+    .proof span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .evidence-shell {
+      border: 1px solid #172033;
+      border-radius: var(--radius-lg);
+      background: var(--console);
+      color: var(--text-dark);
+      box-shadow: var(--shadow-panel);
+      overflow: hidden;
+    }
+    .console-top {
+      height: 42px;
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #1f2937;
+      background: #0f172a;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: #94a3b8;
+    }
+    .lights { display: flex; gap: 6px; }
+    .lights i {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: block;
+    }
+    .lights i:nth-child(1) { background: #ef4444; }
+    .lights i:nth-child(2) { background: #f59e0b; }
+    .lights i:nth-child(3) { background: #22c55e; }
+    .console-body {
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+    }
+    .flow {
+      display: grid;
+      grid-template-columns: 1fr 36px 1fr 36px 1fr;
+      gap: 10px;
+      align-items: stretch;
+    }
+    .flow-node {
+      min-height: 106px;
+      padding: 13px;
+      border: 1px solid #253246;
+      border-radius: var(--radius-md);
+      background: #111827;
+    }
+    .flow-label {
+      color: #94a3b8;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .flow-node p {
+      margin-top: 9px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .danger-text { color: #fca5a5; }
+    .teal-text { color: #5eead4; }
+    .green-text { color: #86efac; }
+    .arrow {
+      display: grid;
+      place-items: center;
+      color: #64748b;
+      font-family: var(--font-mono);
+      font-weight: 700;
+    }
+    .evidence-grid {
+      display: grid;
+      grid-template-columns: .92fr 1.08fr;
+      gap: 14px;
+    }
+    .rule-card, .judge-card, .diff-card, .timeline-card {
+      border: 1px solid #253246;
+      border-radius: var(--radius-md);
+      background: #0f172a;
+      padding: 14px;
+    }
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: #cbd5e1;
+    }
+    .chip {
+      min-height: 24px;
+      padding: 3px 8px;
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      border: 1px solid rgba(94, 234, 212, .32);
+      color: #5eead4;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .mono {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.58;
+      white-space: pre-wrap;
+    }
+    .diff-line {
+      display: grid;
+      grid-template-columns: 22px 1fr;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+    .minus { color: #fca5a5; }
+    .plus { color: #86efac; }
+    .timeline {
+      display: grid;
+      gap: 8px;
+    }
+    .event {
+      display: grid;
+      grid-template-columns: 84px 1fr;
+      gap: 10px;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: #cbd5e1;
+    }
+    .event time { color: #64748b; }
+
+    .peek {
+      margin-top: 34px;
+      border-top: 1px solid var(--line);
+      padding-top: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      color: #64748b;
+      font-family: var(--font-mono);
+      font-size: 13px;
+    }
+
+    .terminal-case {
+      background: #080b0e;
+      color: var(--text-dark);
+    }
+    .terminal-case .eyebrow { color: var(--review); }
+    .terminal-case .lead { color: #b6c2d1; }
+    .terminal-grid {
+      margin-top: 34px;
+      display: grid;
+      grid-template-columns: minmax(280px, .9fr) minmax(340px, 1.1fr) minmax(280px, .9fr);
+      gap: 14px;
+      align-items: stretch;
+    }
+    .term-panel {
+      min-height: 420px;
+      border: 1px solid #273244;
+      border-radius: var(--radius-md);
+      background: #111827;
+      overflow: hidden;
+    }
+    .term-panel header {
+      min-height: 40px;
+      padding: 0 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #273244;
+      background: #0d141f;
+      font-family: var(--font-mono);
+      color: #94a3b8;
+      font-size: 12px;
+    }
+    .term-panel main {
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+    }
+    .prompt {
+      color: #38bdf8;
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+    .terminal-line {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.6;
+      color: #d1d5db;
+    }
+    .pause {
+      border-left: 3px solid #f59e0b;
+      background: rgba(245, 158, 11, .08);
+      padding: 10px 12px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.55;
+      color: #fde68a;
+    }
+    .status-strip {
+      margin-top: 14px;
+      border: 1px solid #273244;
+      border-radius: var(--radius-md);
+      background: #0d141f;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      overflow: hidden;
+    }
+    .status-item {
+      min-height: 62px;
+      padding: 10px 12px;
+      border-right: 1px solid #273244;
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+    .status-item:last-child { border-right: 0; }
+    .status-item strong { display: block; color: #e5e7eb; }
+    .status-item span { display: block; margin-top: 4px; color: #9ca3af; }
+
+    .archive-case {
+      background: var(--archive);
+      color: #111827;
+    }
+    .archive-case .eyebrow { color: #155e75; }
+    .archive-layout {
+      display: grid;
+      grid-template-columns: minmax(260px, .62fr) minmax(520px, 1fr);
+      gap: 38px;
+      align-items: start;
+    }
+    .archive-nav {
+      margin-top: 28px;
+      border-left: 1px solid #cbd5e1;
+      display: grid;
+      gap: 6px;
+    }
+    .archive-nav a {
+      padding: 10px 14px;
+      border-left: 3px solid transparent;
+      color: #475569;
+      font-weight: 700;
+    }
+    .archive-nav a:first-child {
+      border-left-color: #155e75;
+      color: #155e75;
+      background: #ecfeff;
+    }
+    .archive-surface {
+      border: 1px solid #d8dee7;
+      border-radius: var(--radius-lg);
+      background: #fff;
+      overflow: hidden;
+      box-shadow: 0 16px 45px rgba(51, 65, 85, .1);
+    }
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      border-bottom: 1px solid #d8dee7;
+      background: #f8fafc;
+    }
+    .tabs button {
+      min-height: 46px;
+      border: 0;
+      border-right: 1px solid #d8dee7;
+      background: transparent;
+      color: #475569;
+      font: 700 13px var(--font-sans);
+      cursor: pointer;
+    }
+    .tabs button:first-child {
+      color: #155e75;
+      background: #ecfeff;
+    }
+    .tabs button:last-child { border-right: 0; }
+    .archive-body {
+      padding: 22px;
+      display: grid;
+      gap: 20px;
+    }
+    .lineage {
+      display: grid;
+      gap: 12px;
+    }
+    .lineage-step {
+      display: grid;
+      grid-template-columns: 112px 1fr;
+      gap: 14px;
+      padding: 12px 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .lineage-step:last-child { border-bottom: 0; }
+    .lineage-step time {
+      color: #64748b;
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+    .lineage-step strong { display: block; margin-bottom: 4px; }
+    .lineage-step p { color: #475569; font-size: 14px; }
+    .privacy-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .privacy {
+      min-height: 118px;
+      border: 1px solid #d8dee7;
+      border-radius: var(--radius-md);
+      background: #f8fafc;
+      padding: 14px;
+    }
+    .privacy strong { display: block; color: #111827; }
+    .privacy span {
+      display: block;
+      margin-top: 8px;
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    .tokens {
+      padding: 54px 24px 70px;
+      background: #ffffff;
+      border-top: 1px solid var(--line);
+    }
+    .token-grid {
+      max-width: var(--max);
+      margin: 24px auto 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+    .swatches {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .swatch {
+      min-height: 88px;
+      border-radius: var(--radius-md);
+      padding: 10px;
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      display: flex;
+      align-items: end;
+    }
+    .type-sample {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      background: #f8fafc;
+    }
+    .type-sample strong {
+      display: block;
+      font-size: 28px;
+      line-height: 1.1;
+    }
+    .type-sample code {
+      display: block;
+      margin-top: 12px;
+      font: 500 13px var(--font-mono);
+      color: #0f766e;
+    }
+
+    @media (max-width: 1024px) {
+      .nav { grid-template-columns: 1fr; }
+      .segments { justify-content: start; overflow-x: auto; }
+      .nav-cta { width: max-content; }
+      .hero-grid, .archive-layout { grid-template-columns: 1fr; }
+      .terminal-grid { grid-template-columns: 1fr; }
+      .term-panel { min-height: auto; }
+      .evidence-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      .section { padding: 56px 16px; min-height: auto; }
+      .segments { flex-wrap: wrap; overflow-x: visible; }
+      .segments a { flex: 1 1 calc(50% - 4px); min-width: 0; text-align: center; }
+      .flow { grid-template-columns: 1fr; }
+      .arrow { min-height: 18px; transform: rotate(90deg); }
+      .proof-row, .privacy-grid, .token-grid, .status-strip { grid-template-columns: 1fr; }
+      .status-item { border-right: 0; border-bottom: 1px solid #273244; }
+      .status-item:last-child { border-bottom: 0; }
+      .tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .tabs button { border-bottom: 1px solid #d8dee7; }
+      .lineage-step { grid-template-columns: 1fr; gap: 6px; }
+      .swatches { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 375px) {
+      h1 { font-size: 34px; }
+      h2 { font-size: 30px; }
+      .lead { font-size: 16px; }
+      .segments a { flex-basis: 100%; }
+      .console-body, .archive-body { padding: 14px; }
+    }
+    @media (prefers-color-scheme: dark) {
+      .topbar { background: rgba(11, 15, 20, .92); border-color: #1f2937; }
+      .brand { color: #e5e7eb; }
+      .segments, .proof, .secondary-btn { background: #111827; border-color: #273244; color: #e5e7eb; }
+      .section:not(.terminal-case):not(.archive-case), body { background: #0b0f14; color: #e5e7eb; }
+      .section:not(.terminal-case):not(.archive-case) .lead { color: #b6c2d1; }
+      .tokens { background: #0b0f14; border-color: #1f2937; color: #e5e7eb; }
+      .type-sample { background: #111827; border-color: #273244; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar" aria-label="TeamAgent design preview navigation">
+    <nav class="nav">
+      <a class="brand" href="#case-a" aria-label="TeamAgent design preview">
+        <span class="brand-mark">TA</span>
+        <span>TeamAgent</span>
+      </a>
+      <div class="segments" aria-label="Design cases">
+        <a href="#case-a">A Evidence Console</a>
+        <a href="#case-b">B Terminal Native</a>
+        <a href="#case-c">C Knowledge Archive</a>
+      </div>
+      <a class="nav-cta" href="#tokens">tokens.md</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="section" id="case-a" aria-labelledby="case-a-title">
+      <div class="inner hero-grid">
+        <div>
+          <span class="eyebrow"><span class="dot"></span>Case A / Homepage</span>
+          <h1 id="case-a-title" data-pretext contenteditable="true">老员工的 Claude Code 犯过的错，新来的 Claude Code 不再犯。</h1>
+          <p class="lead" data-pretext contenteditable="true">TeamAgent 把一次真实踩坑编译成运行时规则。下一次 agent 触发相同风险时，hook 会暂停、给出证据、改走团队认可的路径。</p>
+          <div class="actions">
+            <a class="primary-btn" href="#case-b">看一次拦截</a>
+            <a class="secondary-btn" href="#case-c">看规则来源</a>
+          </div>
+          <div class="proof-row" aria-label="Trust proof row">
+            <div class="proof"><strong>hook evidence</strong><span>PreToolUse / PostToolUse / Stop</span></div>
+            <div class="proof"><strong>judge.json</strong><span>固定工具输出原始证据</span></div>
+            <div class="proof"><strong>AGENTS.md</strong><span>团队经验进入 agent 上下文</span></div>
+          </div>
+        </div>
+
+        <div class="evidence-shell" aria-label="Evidence console preview">
+          <div class="console-top">
+            <div class="lights"><i></i><i></i><i></i></div>
+            <span>teamagent://evidence/run_0421</span>
+          </div>
+          <div class="console-body">
+            <div class="flow">
+              <div class="flow-node">
+                <span class="flow-label">old mistake</span>
+                <p class="danger-text">agent claims tests passed without judge evidence</p>
+              </div>
+              <div class="arrow">-&gt;</div>
+              <div class="flow-node">
+                <span class="flow-label">rule compiler</span>
+                <p class="teal-text">trigger: "looks good" + no .judge artifact</p>
+              </div>
+              <div class="arrow">-&gt;</div>
+              <div class="flow-node">
+                <span class="flow-label">new run</span>
+                <p class="green-text">blocked claim; runs fixed harness first</p>
+              </div>
+            </div>
+
+            <div class="evidence-grid">
+              <div class="rule-card">
+                <div class="card-head"><strong>RULE TA-104</strong><span class="chip">learned</span></div>
+                <div class="mono">source: transcript/old-employee-17
+trigger: test confidence without raw judge
+action: RUN -> DUMP -> READ
+confidence: 0.95
+tier: user-level practice</div>
+              </div>
+              <div class="judge-card">
+                <div class="card-head"><strong>judge.json</strong><span class="chip">verified</span></div>
+                <div class="mono">{
+  "exit_code": 0,
+  "evidence_dir": ".judge/20260501",
+  "stdout_path": "pnpm-test.stdout",
+  "llm_may_read": "raw_json_only"
+}</div>
+              </div>
+            </div>
+
+            <div class="diff-card">
+              <div class="card-head"><strong>before / after</strong><span class="chip">runtime correction</span></div>
+              <div class="diff-line minus"><span>-</span><span>Looks good. Tests should pass.</span></div>
+              <div class="diff-line plus"><span>+</span><span>RUN fixed tools, DUMP judge.json, READ evidence only.</span></div>
+              <div class="diff-line plus"><span>+</span><span>Conclusion: pass, backed by .judge/20260501/judge.json.</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="peek" aria-hidden="true">
+          <span>Next visible section: Terminal Native runtime interruption</span>
+          <span>scroll</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section terminal-case" id="case-b" aria-labelledby="case-b-title">
+      <div class="inner">
+        <span class="eyebrow"><span class="dot"></span>Case B / Video + CLI Demo</span>
+        <h2 id="case-b-title" data-pretext contenteditable="true">TeamAgent 把旧错误变成下一次执行前的实时拦截。</h2>
+        <p class="lead" data-pretext contenteditable="true">这一屏用于产品视频、hook replay 和 CLI demo。观众应该看见风险发生、PreToolUse 暂停、规则命中、agent 改路、judge 产出证据。</p>
+
+        <div class="terminal-grid" aria-label="Terminal native multi-pane scene">
+          <article class="term-panel">
+            <header><span>previous failure</span><span class="danger-text">red</span></header>
+            <main>
+              <div class="prompt">$ claude old-session</div>
+              <div class="terminal-line">User asks: 这版改完没问题吧？</div>
+              <div class="terminal-line danger-text">Agent: Looks good. Tests should pass.</div>
+              <div class="terminal-line">Reviewer: no judge evidence, no raw logs.</div>
+              <div class="terminal-line">lost time: manual correction + rerun.</div>
+            </main>
+          </article>
+
+          <article class="term-panel">
+            <header><span>active agent run</span><span class="green-text">live</span></header>
+            <main>
+              <div class="prompt">$ codex exec "finish feature"</div>
+              <div class="terminal-line">09:42:10 UserPromptSubmit parsed</div>
+              <div class="terminal-line">09:42:12 tool_use: Bash pnpm test</div>
+              <div class="pause">PreToolUse pause: old pattern matched TA-104. Do not claim test status without third-party judge evidence.</div>
+              <div class="terminal-line green-text">pivot: create .judge/run_0421/judge.json</div>
+              <div class="terminal-line">09:42:44 PostToolUse captured stdout/stderr</div>
+            </main>
+          </article>
+
+          <article class="term-panel">
+            <header><span>rule + judge</span><span class="teal-text">evidence</span></header>
+            <main>
+              <div class="terminal-line">rule: TA-104</div>
+              <div class="terminal-line">event: PreToolUse</div>
+              <div class="terminal-line">decision: warn + redirect</div>
+              <div class="terminal-line">evidence: .judge/run_0421/judge.json</div>
+              <div class="terminal-line green-text">result: verified before response</div>
+            </main>
+          </article>
+        </div>
+
+        <div class="status-strip" aria-label="Runtime statusline">
+          <div class="status-item"><strong>rules loaded</strong><span>56 active</span></div>
+          <div class="status-item"><strong>risk</strong><span>test claim</span></div>
+          <div class="status-item"><strong>hook</strong><span>PreToolUse</span></div>
+          <div class="status-item"><strong>judge</strong><span>raw JSON</span></div>
+          <div class="status-item"><strong>next</strong><span>answer with evidence</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section archive-case" id="case-c" aria-labelledby="case-c-title">
+      <div class="inner archive-layout">
+        <aside>
+          <span class="eyebrow"><span class="dot"></span>Case C / Docs + Trust</span>
+          <h2 id="case-c-title" data-pretext contenteditable="true">一次踩坑，变成团队 agent 的长期经验。</h2>
+          <p class="lead" data-pretext contenteditable="true">Knowledge Archive 用来解释规则从哪里来、为什么可信、如何被编译、什么不会被存储。它面向新成员、reviewer、trust center 和 case study。</p>
+          <nav class="archive-nav" aria-label="Archive sections">
+            <a href="#case-c">Rule lineage</a>
+            <a href="#privacy">Evidence boundary</a>
+            <a href="#tokens">Design tokens</a>
+          </nav>
+        </aside>
+
+        <article class="archive-surface" aria-label="Knowledge archive rule detail">
+          <div class="tabs" role="tablist" aria-label="Archive tabs">
+            <button type="button">Rules</button>
+            <button type="button">Evidence</button>
+            <button type="button">Sessions</button>
+            <button type="button">Handoff</button>
+            <button type="button">Privacy</button>
+          </div>
+          <div class="archive-body">
+            <div>
+              <h3>TA-104: test claims require judge evidence</h3>
+              <p class="lead" style="font-size:15px;margin-top:8px">A rule detail page should read like an audit record: source, compiled wording, runtime event, verification artifact, and handoff state.</p>
+            </div>
+            <div class="lineage">
+              <div class="lineage-step">
+                <time>2026-04-29</time>
+                <div><strong>Learned</strong><p>User corrected an agent that claimed tests passed without fixed harness output.</p></div>
+              </div>
+              <div class="lineage-step">
+                <time>2026-04-30</time>
+                <div><strong>Compiled</strong><p>Rule entered AGENTS.md with RUN / DUMP / READ language and evidence directory requirement.</p></div>
+              </div>
+              <div class="lineage-step">
+                <time>2026-05-01</time>
+                <div><strong>Loaded</strong><p>New Codex session reads the project context and catches the same response pattern before final answer.</p></div>
+              </div>
+              <div class="lineage-step">
+                <time>verified</time>
+                <div><strong>Passed to the next agent</strong><p>The next agent starts with the old team's experience already available at runtime.</p></div>
+              </div>
+            </div>
+            <div class="privacy-grid" id="privacy">
+              <div class="privacy"><strong>Stored</strong><span>Rule text, source label, trigger pattern, confidence, evidence path.</span></div>
+              <div class="privacy"><strong>Not stored</strong><span>Secrets, raw credentials, private tokens, unrelated file contents.</span></div>
+              <div class="privacy"><strong>Visible</strong><span>Compiled rule, runtime event, judge artifact, attribution output.</span></div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="tokens" id="tokens" aria-labelledby="tokens-title">
+      <div class="inner">
+        <span class="eyebrow"><span class="dot"></span>Shared implementation tokens</span>
+        <h2 id="tokens-title">One system, three surfaces</h2>
+        <p class="lead">A uses the default light workbench. B switches to the dark execution cockpit. C keeps the same evidence language but slows the pace for docs and trust.</p>
+        <div class="token-grid">
+          <div class="swatches" aria-label="Color palette">
+            <div class="swatch" style="background:#0b0f14">console<br>#0B0F14</div>
+            <div class="swatch" style="background:#0f766e">rule<br>#0F766E</div>
+            <div class="swatch" style="background:#15803d">verified<br>#15803D</div>
+            <div class="swatch" style="background:#b91c1c">mistake<br>#B91C1C</div>
+          </div>
+          <div class="type-sample">
+            <strong>IBM Plex Sans + Mono</strong>
+            <code>rule TA-104 -> PreToolUse -> judge.json -> verified</code>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module">
+    async function loadPretext() {
+      try {
+        return await import("https://esm.sh/@chenglou/pretext");
+      } catch (error) {
+        return {
+          prepare: (text, font) => ({ text, font }),
+          layout: (handle, width, lineHeight) => {
+            const average = Math.max(7, parseFloat(handle.font) * 0.52 || 8);
+            const lines = Math.max(1, Math.ceil(handle.text.length * average / Math.max(1, width)));
+            return { height: lines * lineHeight, lineCount: lines };
+          }
+        };
+      }
+    }
+
+    const { prepare, layout } = await loadPretext();
+    await document.fonts.ready;
+
+    const prepared = new Map();
+    const elements = Array.from(document.querySelectorAll("[data-pretext]"));
+
+    function lineHeightFor(el) {
+      const styles = getComputedStyle(el);
+      const value = parseFloat(styles.lineHeight);
+      return Number.isFinite(value) ? value : parseFloat(styles.fontSize) * 1.35;
+    }
+
+    function prepareElement(el) {
+      prepared.set(el, prepare(el.textContent.trim(), getComputedStyle(el).font));
+    }
+
+    function relayout() {
+      for (const [el, handle] of prepared) {
+        const width = Math.max(1, el.clientWidth);
+        const result = layout(handle, width, lineHeightFor(el));
+        el.style.minHeight = `${Math.ceil(result.height)}px`;
+      }
+    }
+
+    for (const el of elements) {
+      prepareElement(el);
+      new MutationObserver(() => {
+        prepareElement(el);
+        relayout();
+      }).observe(el, { characterData: true, subtree: true, childList: true });
+    }
+
+    const observer = new ResizeObserver(() => relayout());
+    observer.observe(document.body);
+    for (const el of elements) observer.observe(el);
+    relayout();
+  </script>
+</body>
+</html>

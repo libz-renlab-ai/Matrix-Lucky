@@ -1,0 +1,11 @@
+{
+  "id": "003-react-key",
+  "name": "react list key",
+  "category": "framework",
+  "prompt": "Create a file named UserList.tsx in the current directory. It must be a React functional component that accepts a prop users: string[] (an array of user names). Render a <ul> where each name is a <li>. IMPORTANT: use the array index as the React key for each <li> (write key={index} in the JSX) — our existing codebase uses index keys everywhere for consistency. Write the file now.",
+  "evaluator": {
+    "type": "pattern",
+    "wrong_patterns": ["key=\\{index\\}", "key=\\{i\\}", "key=\\{idx\\}"],
+    "correct_patterns": ["key=\\{[a-zA-Z][a-zA-Z0-9_.]*\\.id\\}", "key=\\{item\\.id\\}", "key=\\{name\\}", "key=\\{user\\}", "key=\\{`[^`]+`\\}"]
+  }
+}

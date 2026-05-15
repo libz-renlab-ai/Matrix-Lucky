@@ -1,0 +1,8 @@
+`issues` 是 `~/.zshrc:313` 定义的一个 **zsh function**（不是字面 alias），用于列出当前仓库所有 **open & unassigned** 的 GitHub issues。
+
+**核心特性：**
+- 依赖 `gh`（GitHub CLI）+ git worktree
+- ASCII 鸭子主题输出
+- 空结果返回 0（不报错）
+
+详情见：[runtime/issues-alias.md](.claude/docs/rules/runtime/issues-alias.md)

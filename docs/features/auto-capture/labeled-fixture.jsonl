@@ -1,0 +1,20 @@
+{"session_id":"fix-s001","transcript":"User: no, that's wrong. Use axios instead of fetch for the HTTP calls.","expected_correction":true,"expected_rule_keyword":"axios instead of fetch"}
+{"session_id":"fix-s002","transcript":"User: stop using console.log in production code, we have a logger module already","expected_correction":true,"expected_rule_keyword":"stop using console.log"}
+{"session_id":"fix-s003","transcript":"User: don't do that — instead of modifying the global state directly, dispatch an action","expected_correction":true,"expected_rule_keyword":"don't do that"}
+{"session_id":"fix-s004","transcript":"User: not what I wanted. I asked you to add error handling, not rewrite the whole function","expected_correction":true,"expected_rule_keyword":"not what I wanted"}
+{"session_id":"fix-s005","transcript":"User: 不对，你应该用 pnpm 而不是 npm，这个项目用的是 pnpm","expected_correction":true,"expected_rule_keyword":"不对"}
+{"session_id":"fix-s006","transcript":"User: 错了，别直接改 package.json，先跑 pnpm add 命令","expected_correction":true,"expected_rule_keyword":"错了"}
+{"session_id":"fix-s007","transcript":"User: 换个思路，不要用递归，用迭代来实现这个算法","expected_correction":true,"expected_rule_keyword":"换个思路"}
+{"session_id":"fix-s008","transcript":"User: 重来，你理解错了我的需求。我要的是把旧记录归档，不是删除","expected_correction":true,"expected_rule_keyword":"重来"}
+{"session_id":"neu-s001","transcript":"User: looks good, can you also add a test for the edge case?","expected_correction":false}
+{"session_id":"neu-s002","transcript":"User: thanks, that worked. Now let's move on to the next feature","expected_correction":false}
+{"session_id":"neu-s003","transcript":"User: can you explain how the session parser handles multi-turn conversations?","expected_correction":false}
+{"session_id":"neu-s004","transcript":"User: 好的，先这样，我们继续下一步","expected_correction":false}
+{"session_id":"neu-s005","transcript":"User: please add TypeScript types to the new utility function","expected_correction":false}
+{"session_id":"neu-s006","transcript":"User: what does the CorrectionDetector interface look like?","expected_correction":false}
+{"session_id":"neu-s007","transcript":"User: 能帮我看看这段代码有没有什么问题吗？","expected_correction":false}
+{"session_id":"neu-s008","transcript":"User: I think we should also handle the case where the session file is empty","expected_correction":false}
+{"session_id":"neu-s009","transcript":"User: let's run the tests to see if everything passes","expected_correction":false}
+{"session_id":"neu-s010","transcript":"User: 这个实现思路不错，继续完善一下就好","expected_correction":false}
+{"session_id":"neu-s011","transcript":"User: can you show me the current state of the rule-based.ts file?","expected_correction":false}
+{"session_id":"neu-s012","transcript":"User: the documentation looks complete, let's commit this","expected_correction":false}

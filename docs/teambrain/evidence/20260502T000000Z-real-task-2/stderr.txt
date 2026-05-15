@@ -1,0 +1,9 @@
+No stderr output from any of the three Task #2 harness runs.
+
+Raw stderr: .judge/20260502T000000Z-real-task-2/stderr.txt (size: 0 bytes by design — final post-archive run).
+Raw task1-verify-stderr: .judge/20260502T000000Z-real-task-2/task1-verify-stderr.txt (size: 0 bytes by design — Task #1 re-verify).
+Raw pre-archive-stderr: .judge/20260502T000000Z-real-task-2/pre-archive-stderr.txt (size: 0 bytes by design — pre-archive negative case).
+Reason: scripts/verify/tbrain-verify.sh writes to stderr only when an anchor file is missing (none were); all three runs had clean stderr streams.
+Checksum: sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b34ca495991b7852b8855 (canonical empty-stream sha256, applies to all three raw stderr files).
+
+This file exists to satisfy the required archive gate in docs/teambrain/VERIFY_TEMPLATE.md and the post-GAP-4 enumeration in docs/teambrain/evidence/README.md (a missing/empty stderr.txt is missing_evidence and fails the harness binary). Cross-reference: failures.md, judge-summary.json, .judge/20260502T000000Z-real-task-2/judge.json.

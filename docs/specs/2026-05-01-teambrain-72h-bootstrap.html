@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TeamBrain · 72h Bootstrap Sprint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0b;
+    --bg-card: #111114;
+    --bg-elev: #16161a;
+    --border: #25252b;
+    --border-bright: #3a3a44;
+    --fg: #f5f5f7;
+    --fg-dim: #a3a3aa;
+    --fg-mute: #6e6e76;
+
+    --accent: #10b981;
+    --accent-glow: rgba(16, 185, 129, 0.35);
+    --cyan: #22d3ee;
+
+    --human:    #fbbf24;
+    --claude:   #60a5fa;
+    --codex:    #c084fc;
+    --reviewer: #fb7185;
+    --release:  #34d399;
+  }
+
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(16,185,129,0.10), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 100% 30%, rgba(34,211,238,0.06), transparent 60%);
+    background-attachment: fixed;
+  }
+
+  .container {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 28px;
+  }
+
+  /* ── HERO ──────────────────────────────────────── */
+  .hero {
+    padding: 96px 0 72px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(0deg,  transparent 49.6%, rgba(255,255,255,0.025) 49.6%, rgba(255,255,255,0.025) 50.4%, transparent 50.4%),
+      linear-gradient(90deg, transparent 49.6%, rgba(255,255,255,0.025) 49.6%, rgba(255,255,255,0.025) 50.4%, transparent 50.4%);
+    background-size: 64px 64px;
+    pointer-events: none;
+    mask-image: radial-gradient(ellipse at top, #000 30%, transparent 70%);
+  }
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 14px;
+    border: 1px solid var(--border-bright);
+    border-radius: 999px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--fg-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 28px;
+    background: rgba(20,20,24,0.6);
+    backdrop-filter: blur(8px);
+  }
+  .hero-tag-dot {
+    width: 6px; height: 6px;
+    border-radius: 999px;
+    background: var(--accent);
+    box-shadow: 0 0 12px var(--accent-glow);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.35; }
+  }
+  .hero h1 {
+    font-size: clamp(44px, 8vw, 86px);
+    font-weight: 700;
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+    margin-bottom: 24px;
+  }
+  .hero h1 .accent  { color: var(--accent); }
+  .hero h1 .stop    { color: var(--fg-mute); font-weight: 400; }
+  .hero p {
+    font-size: 18px;
+    color: var(--fg-dim);
+    max-width: 720px;
+  }
+  .hero p strong { color: var(--fg); font-weight: 500; }
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px;
+    margin-top: 44px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--fg-mute);
+  }
+  .hero-meta div { display: flex; flex-direction: column; gap: 4px; }
+  .hero-meta strong { color: var(--fg); font-weight: 500; font-size: 14px; }
+
+  /* ── SECTION HEADERS ──────────────────────────── */
+  section { padding: 72px 0; border-bottom: 1px solid var(--border); }
+  .section-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--fg-mute);
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    margin-bottom: 20px;
+  }
+  section h2 {
+    font-size: clamp(28px, 4vw, 38px);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-bottom: 36px;
+  }
+
+  /* ── CAST ──────────────────────────────────────── */
+  .cast-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+  }
+  .cast-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--role-color, var(--fg));
+    padding: 22px;
+    border-radius: 10px;
+    transition: transform .15s ease, border-color .15s ease;
+  }
+  .cast-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-bright);
+  }
+  .cast-card .role-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--role-color);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    margin-bottom: 12px;
+  }
+  .cast-card .count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 36px;
+    font-weight: 500;
+    color: var(--fg);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .cast-card .count .x { color: var(--fg-mute); font-size: 18px; margin-left: 2px; }
+  .cast-card .label  { font-size: 14px; color: var(--fg-dim); }
+  .cast-card .who    {
+    font-size: 12px;
+    color: var(--fg-mute);
+    margin-top: 10px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .constraints {
+    margin-top: 28px;
+    padding: 18px 22px;
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--fg-dim);
+  }
+  .constraints-label {
+    font-size: 10px;
+    color: var(--fg-mute);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    margin-bottom: 10px;
+  }
+  .constraints ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 28px;
+  }
+  .constraints li::before {
+    content: '·';
+    color: var(--accent);
+    margin-right: 10px;
+    font-weight: 700;
+  }
+
+  /* ── TIMELINE ──────────────────────────────────── */
+  .phase {
+    position: relative;
+    padding-left: 56px;
+    padding-bottom: 52px;
+  }
+  .phase::before {
+    content: '';
+    position: absolute;
+    left: 17px;
+    top: 14px;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(180deg, var(--border-bright), var(--border) 30%, transparent);
+  }
+  .phase:last-child::before { display: none; }
+  .phase-dot {
+    position: absolute;
+    left: 11px;
+    top: 8px;
+    width: 14px;
+    height: 14px;
+    border-radius: 999px;
+    background: var(--bg);
+    border: 2px solid var(--phase-color, var(--accent));
+    box-shadow:
+      0 0 0 4px var(--bg),
+      0 0 14px var(--phase-color, var(--accent-glow));
+  }
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .phase-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--fg-mute);
+    letter-spacing: 0.05em;
+  }
+  .phase-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 11px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--phase-color, var(--accent));
+    background: color-mix(in srgb, var(--phase-color, var(--accent)) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--phase-color, var(--accent)) 35%, transparent);
+  }
+  .phase-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--fg-mute);
+    margin-left: auto;
+    letter-spacing: 0.1em;
+  }
+  .phase-title {
+    font-size: clamp(20px, 2.8vw, 26px);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    margin-bottom: 18px;
+    color: var(--fg);
+  }
+
+  .actors {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 12px;
+  }
+  .actor {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 2px solid var(--role-color, var(--fg));
+    padding: 18px 20px;
+    border-radius: 8px;
+  }
+  .actor-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--role-color);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .actor-name::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 999px;
+    background: var(--role-color);
+    flex-shrink: 0;
+  }
+  .actor ul { list-style: none; }
+  .actor li {
+    font-size: 14px;
+    color: var(--fg-dim);
+    padding-left: 20px;
+    position: relative;
+    margin-bottom: 7px;
+    line-height: 1.5;
+  }
+  .actor li:last-child { margin-bottom: 0; }
+  .actor li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--fg-mute);
+  }
+  .actor li em {
+    color: var(--fg);
+    font-style: normal;
+    font-weight: 500;
+  }
+
+  /* ── RELEASE BANNER ──────────────────────────── */
+  .release-banner {
+    margin-top: 18px;
+    padding: 24px 28px;
+    background: linear-gradient(135deg, rgba(16,185,129,0.10), rgba(34,211,238,0.04));
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .release-version {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 32px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+  }
+  .release-arrow {
+    color: var(--fg-mute);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .release-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .release-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    padding: 5px 12px;
+    border: 1px solid var(--accent);
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+  }
+
+  /* ── FOOTER ──────────────────────────────────── */
+  footer {
+    padding: 40px 0 80px;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--fg-mute);
+  }
+  footer a { color: var(--fg-dim); text-decoration: none; border-bottom: 1px dashed var(--border-bright); }
+  footer a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  @media (max-width: 640px) {
+    .phase { padding-left: 36px; }
+    .phase::before { left: 7px; }
+    .phase-dot { left: 1px; width: 12px; height: 12px; }
+    .hero { padding: 64px 0 44px; }
+    section { padding: 56px 0; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="container">
+    <div class="hero-tag">
+      <span class="hero-tag-dot"></span>
+      <span>SPRINT PLAN · v0.1 · 2026-05-01</span>
+    </div>
+    <h1>
+      TeamBrain<span class="stop">.</span><br>
+      <span class="accent">72-hour</span> bootstrap<span class="stop">.</span>
+    </h1>
+    <p>
+      One <strong>human owner</strong>. Five non-sleeping agents.
+      Three days from blank repo to a v0.1 anyone can pick up.
+      <br>No UI, no database — only <strong>Markdown + prompts + scripts</strong>.
+    </p>
+    <div class="hero-meta">
+      <div><span>DATE</span><strong>2026-05-01</strong></div>
+      <div><span>SCOPE</span><strong>v0.1</strong></div>
+      <div><span>WORKTREE</span><strong>light-speed-design</strong></div>
+      <div><span>STATUS</span><strong>plan</strong></div>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="container">
+    <div class="section-eyebrow">// 01 · the cast</div>
+    <h2>Who's on the floor.</h2>
+    <div class="cast-grid">
+      <div class="cast-card" style="--role-color: var(--human);">
+        <div class="role-tag">Owner</div>
+        <div class="count">1<span class="x">×</span></div>
+        <div class="label">Human</div>
+        <div class="who">// you</div>
+      </div>
+      <div class="cast-card" style="--role-color: var(--claude);">
+        <div class="role-tag">Claude Code</div>
+        <div class="count">2<span class="x">×</span></div>
+        <div class="label">Instances</div>
+        <div class="who">// agent A · agent B</div>
+      </div>
+      <div class="cast-card" style="--role-color: var(--codex);">
+        <div class="role-tag">Codex</div>
+        <div class="count">2<span class="x">×</span></div>
+        <div class="label">Instances</div>
+        <div class="who">// agent C · agent D</div>
+      </div>
+      <div class="cast-card" style="--role-color: var(--reviewer);">
+        <div class="role-tag">Gatekeeper</div>
+        <div class="count">1<span class="x">×</span></div>
+        <div class="label">Reviewer Agent</div>
+        <div class="who">// gates everything</div>
+      </div>
+    </div>
+    <div class="constraints">
+      <div class="constraints-label">// hard constraints</div>
+      <ul>
+        <li>no sleep</li>
+        <li>no UI</li>
+        <li>no database</li>
+        <li>only Markdown + prompts + scripts</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="section-eyebrow">// 02 · the progression</div>
+    <h2>Hour 0 → 72.</h2>
+
+    <!-- ── PHASE 1 ── -->
+    <div class="phase" style="--phase-color: var(--human);">
+      <div class="phase-dot"></div>
+      <div class="phase-header">
+        <span class="phase-time">HOUR 0–2</span>
+        <span class="phase-tag">KICKOFF</span>
+        <span class="phase-num">PHASE 01 / 07</span>
+      </div>
+      <div class="phase-title">Set the truth on the table.</div>
+      <div class="actors">
+        <div class="actor" style="--role-color: var(--human);">
+          <div class="actor-name">Human · Owner</div>
+          <ul>
+            <li>say what TeamBrain <em>is</em></li>
+            <li>say what it is <em>not</em> — not a doc site for humans</li>
+            <li>dump every historical pitfall, in writing</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PHASE 2 ── -->
+    <div class="phase" style="--phase-color: var(--cyan);">
+      <div class="phase-dot"></div>
+      <div class="phase-header">
+        <span class="phase-time">HOUR 2–6</span>
+        <span class="phase-tag">PARALLEL BUILD</span>
+        <span class="phase-num">PHASE 02 / 07</span>
+      </div>
+      <div class="phase-title">Four agents, four lanes, no overlap.</div>
+      <div class="actors">
+        <div class="actor" style="--role-color: var(--claude);">
+          <div class="actor-name">Agent A · Claude</div>
+          <ul>
+            <li>scaffold the repo skeleton</li>
+            <li>write <em>README.md</em></li>
+          </ul>
+        </div>
+        <div class="actor" style="--role-color: var(--claude);">
+          <div class="actor-name">Agent B · Claude</div>
+          <ul>
+            <li>write <em>TRAPS.md</em></li>
+            <li>nail the trap entry format</li>
+          </ul>
+        </div>
+        <div class="actor" style="--role-color: var(--codex);">
+          <div class="actor-name">Agent C · Codex</div>
+          <ul>
+            <li>write <em>TASK_TEMPLATE.md</em></li>
+            <li>write <em>VERIFY_TEMPLATE.md</em></li>
+          </ul>
+        </div>
+        <div class="actor" style="--role-color: var(--codex);">
+          <div class="actor-name">Agent D · Codex</div>
+          <ul>
+            <li>write <em>agent_rules/claude.md</em></li>
+            <li>write <em>agent_rules/codex.md</em></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PHASE 3 ── -->
+    <div class="phase" style="--phase-color: var(--reviewer);">
+      <div class="phase-dot"></div>
+      <div class="phase-header">
+        <span class="phase-time">HOUR 6–12</span>
+        <span class="phase-tag">REVIEW</span>
+        <span class="phase-num">PHASE 03 / 07</span>
+      </div>
+      <div class="phase-title">Squeeze out the soft rules.</div>
+      <div class="actors">
+        <div class="actor" style="--role-color: var(--reviewer);">
+          <div class="actor-name">Reviewer · Gatekeeper</div>
+          <ul>
+            <li>flag every vague rule</li>
+            <li>hunt mock loopholes</li>
+            <li>confirm every task is ground-truth verifiable</li>
+          </ul>
+        </div>
+        <div class="actor" style="--role-color: var(--human);">
+          <div class="actor-name">Human · Owner</div>
+          <ul>
+            <li>delete the filler</li>
+            <li>keep only hard rules</li>
+            <li>add real failure cases — by name</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PHASE 4 ── -->
+    <div class="phase" style="--phase-color: var(--accent);">
+      <div class="phase-dot"></div>
+      <div class="phase-header">
+        <span class="phase-time">HOUR 12–24</span>
+        <span class="phase-tag">FIELD TEST · #1</span>
+        <span class="phase-num">PHASE 04 / 07</span>
+      </div>
+      <div class="phase-title">Run a real task. Watch what breaks.</div>
+      <div class="actors">
+        <div class="actor" style="--role-color: var(--claude);">
+          <div class="actor-name">Claude / Codex · in the field</div>
+          <ul>
+            <li>read TeamBrain <em>cold</em></li>
+            <li>execute one real task end-to-end</li>
+            <li>capture evidence at every step</li>
+            <li>mark every error agents still make</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PHASE 5 ── -->
+    <div class="phase" style="--phase-color: var(--cyan);">
+      <div class="phase-dot"></div>
+      <div class="phase-header">
+        <span class="phase-time">HOUR 24–36</span>
+        <span class="phase-tag">PATCH</span>
+        <span class="phase-num">PHASE 05 / 07</span>
+      </div>
+      <div class="phase-title">Convert pain into rules.</div>
+      <div class="actors">
+        <div class="actor" style="--role-color: var(--cyan);">
+          <div class="actor-name">Maintainers · all hands</div>
+          <ul>
+            <li>turn each new failure into a trap entry</li>
+            <li>upgrade fuzzy rules into hard rules</li>
+            <li>add the <em>no-mocking</em> checklist</li>
+            <li>add the <em>evidence</em> checklist</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PHASE 6 ── -->
+    <div class="phase" style="--phase-color: var(--accent);">
+      <div class="phase-dot"></div>
+      <div class="phase-header">
+        <span class="phase-time">HOUR 36–60</span>
+        <span class="phase-tag">FIELD TEST · #2</span>
+        <span class="phase-num">PHASE 06 / 07</span>
+      </div>
+      <div class="phase-title">Different task. Different agent.</div>
+      <div class="actors">
+        <div class="actor" style="--role-color: var(--codex);">
+          <div class="actor-name">Fresh agent · clean read</div>
+          <ul>
+            <li>swap in a new task — not the same one</li>
+            <li>swap in a different agent — no shared memory</li>
+            <li>verify the patches actually prevent Task #1's errors</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PHASE 7 ── -->
+    <div class="phase" style="--phase-color: var(--release);">
+      <div class="phase-dot"></div>
+      <div class="phase-header">
+        <span class="phase-time">HOUR 60–72</span>
+        <span class="phase-tag">RELEASE</span>
+        <span class="phase-num">PHASE 07 / 07</span>
+      </div>
+      <div class="phase-title">Cut v0.1.</div>
+      <div class="actors">
+        <div class="actor" style="--role-color: var(--release);">
+          <div class="actor-name">Owner · ship</div>
+          <ul>
+            <li>clean the directory tree</li>
+            <li>write the onboarding flow</li>
+            <li>write usage examples</li>
+            <li>tag the release</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release-banner">
+        <div class="release-version">v0.1</div>
+        <div class="release-arrow">→</div>
+        <div class="release-tags">
+          <span class="release-tag">/frontend-design</span>
+          <span class="release-tag">/webapp-testing</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    docs/specs/2026-05-01-teambrain-72h-bootstrap.html · companion to
+    <a href="2026-05-01-teambrain-72h-bootstrap.md">the markdown spec</a>
+    · last edit 2026-05-01
+  </div>
+</footer>
+
+</body>
+</html>

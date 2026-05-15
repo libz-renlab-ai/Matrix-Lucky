@@ -1,0 +1,5 @@
+{"type":"user","uuid":"u1","parentUuid":null,"timestamp":"2026-04-14T17:00:00Z","sessionId":"fix-neg-01","message":{"role":"user","content":"看一下 package.json 的版本字段"}}
+{"type":"assistant","uuid":"a1","parentUuid":"u1","timestamp":"2026-04-14T17:00:05Z","sessionId":"fix-neg-01","message":{"role":"assistant","content":[{"type":"tool_use","id":"t1","name":"Read","input":{"file_path":"package.json"}}]}}
+{"type":"assistant","uuid":"a1r","parentUuid":"a1","timestamp":"2026-04-14T17:00:10Z","sessionId":"fix-neg-01","message":{"role":"assistant","content":[{"type":"tool_result","tool_use_id":"t1","content":"{\"name\":\"foo\",\"version\":\"1.2.3\"}"}]}}
+{"type":"assistant","uuid":"a2","parentUuid":"a1r","timestamp":"2026-04-14T17:00:15Z","sessionId":"fix-neg-01","message":{"role":"assistant","content":[{"type":"text","text":"当前版本 1.2.3。"}]}}
+{"type":"user","uuid":"u2","parentUuid":"a2","timestamp":"2026-04-14T17:00:30Z","sessionId":"fix-neg-01","message":{"role":"user","content":"好的谢谢"}}

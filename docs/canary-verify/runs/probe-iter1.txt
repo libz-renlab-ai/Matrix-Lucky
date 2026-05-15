@@ -1,0 +1,22 @@
+根据 `CLAUDE.md` 中的明确说明：
+
+**Brain sync bin 和 gstack skills 全部是 project level**，不是 user level。
+
+关键规则：
+
+| 项目 | 路径 | 位置 |
+|------|------|------|
+| gstack skills（Claude Code 端） | `.claude/skills/<name>/SKILL.md` | project level |
+| gstack skills（Codex 端） | `.codex/skills/<name>/SKILL.md` | project level |
+| brain sync bin（`_BRAIN_SYNC_BIN`、`_BRAIN_CONFIG_BIN`） | 根目录下 `.claude/`、`.codex/` 子树 | project level |
+
+**不读** `$HOME/.claude/...` 等 user level 位置。当前已安装的 gstack skills：`canary`、`office-hours`、`plan-ceo-review`，全部 project level，随 git 跟踪，不依赖 user level 副本。
+
+<laziness-self-report>
+premature_stopping: false
+permission_seeking: false
+ownership_dodging: false
+simplest_fix: false
+reasoning_loop: false
+known_limitation: false
+</laziness-self-report>

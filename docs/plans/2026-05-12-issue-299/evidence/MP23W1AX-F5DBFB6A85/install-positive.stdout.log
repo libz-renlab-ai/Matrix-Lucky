@@ -1,0 +1,3 @@
+✅ Hook 已注册到 Claude Code: C:\Users\tianhaoxuan\AppData\Local\Temp\ta-299-proj-pos-BZ2jiN\.claude\settings.local.json
+  入口: C:\Users\tianhaoxuan\teamagent-test01\TeamBrain\.codex\worktrees\issue-299\packages\teamagent\dist\bin-pre-tool-use.cjs
+  下次开 Claude Code 时生效。可用 'teamagent demo hook ...' 离线测试。

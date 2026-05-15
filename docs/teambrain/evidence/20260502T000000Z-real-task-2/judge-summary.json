@@ -1,0 +1,22 @@
+{
+  "recipe_id": "VERIFY-TBRAIN-002",
+  "run_id": "20260502T000000Z-real-task-2",
+  "task_title": "Run scripts/verify/tbrain-verify.sh against Real Task #1 evidence dir; build self-bootstrap evidence archive",
+  "exit_code": 0,
+  "metrics": {
+    "anchor_hits": 26,
+    "anchor_floor": 4,
+    "canonical_paths_ok": 12,
+    "canonical_paths_missing": 0,
+    "archive_present": 6,
+    "archive_missing": 0,
+    "task1_re_verify_exit_code": 0,
+    "task2_pre_archive_exit_code": 2,
+    "task2_post_archive_exit_code": 0
+  },
+  "raw_evidence_dir": ".judge/20260502T000000Z-real-task-2",
+  "archive_dir": "docs/teambrain/evidence/20260502T000000Z-real-task-2",
+  "raw_judge_path": ".judge/20260502T000000Z-real-task-2/judge.json",
+  "failure_list_path": "docs/teambrain/evidence/20260502T000000Z-real-task-2/failures.md",
+  "missing_evidence": false
+}

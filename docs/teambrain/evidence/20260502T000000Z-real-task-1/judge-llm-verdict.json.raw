@@ -1,0 +1,9 @@
+{"recipe_id":"VERIFY-TBRAIN-001","run_id":"20260502T000000Z-real-task-1","conclusion":"pass","notes":"All 10 checks PASS. Raw judge.json non-empty (exit_code=0, missing_evidence=false). judge-summary.json schema complete (recipe_id, run_id, task_title, exit_code, metrics, archive_dir, stdout_path, stderr_path, failure_list_path, missing_evidence, anti_mock). failures.md shows 0 observed failures. run_id matches ^20260502T000000Z-real-task-1$ exactly."}
+<laziness-self-report>
+premature_stopping: false
+permission_seeking: false
+ownership_dodging: false
+simplest_fix: false
+reasoning_loop: false
+known_limitation: false
+</laziness-self-report>
